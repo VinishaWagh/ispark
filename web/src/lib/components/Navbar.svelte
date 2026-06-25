@@ -46,7 +46,9 @@
 </script>
 
 <!-- Sticky wrapper -->
-<header class="sticky top-0 z-50 w-full bg-bg-warm/95 backdrop-blur-md border-b border-border-gray">
+<header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-border-gray">
+	<!-- Gold accent border on top -->
+	<div class="h-[3px] bg-[#C89B3C]"></div>
 	<div class="max-w-7xl mx-auto px-6 lg:px-8">
 		<div class="flex items-center justify-between h-[72px]">
 			

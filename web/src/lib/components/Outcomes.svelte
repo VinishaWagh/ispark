@@ -1,5 +1,4 @@
 <script lang="ts">
-	// Point Allocation Rules list
 	const rules = [
 		{
 			title: 'National / State Representation',
@@ -16,24 +15,24 @@
 	];
 </script>
 
-<section id="grading-scheme" class="py-16 sm:py-24 bg-bg-warm border-t border-slate-200">
+<section id="grading-scheme" class="py-16 sm:py-20 bg-white border-t border-slate-200">
 	<div class="max-w-7xl mx-auto px-6 lg:px-8 space-y-16">
 		
-		<!-- Accreditation and Point Rules grid -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
 			
-			<!-- Left Column: Accreditation & Quote -->
-			<div class="space-y-8">
-				<h2 class="text-3xl font-bold font-serif text-primary-dark tracking-tight">
-					Accreditation & Grading Scheme
+			<div class="space-y-6">
+				<span class="text-[10px] font-bold tracking-[0.2em] text-[#284B63] uppercase font-sans">
+					Grading Scheme
+				</span>
+				<h2 class="text-2xl sm:text-3xl font-bold font-serif text-[#1e3a5f] tracking-tight">
+					Accreditation & Grading
 				</h2>
-				<p class="text-sm text-slate-650 leading-relaxed font-sans font-normal">
+				<p class="text-sm text-slate-600 leading-relaxed font-sans">
 					All student certificates and service logs are audited by the departmental committee before final grades are submitted to the university.
 				</p>
-				
-				<!-- Academic Blockquote (Figma spec) -->
-				<blockquote class="border-l-2 border-accent-gold pl-6 py-1 bg-white/40 rounded-sm">
-					<p class="text-sm italic text-slate-700 font-serif leading-relaxed">
+					
+				<blockquote class="border-l-2 border-[#284B63] pl-5 py-1">
+					<p class="text-sm italic text-slate-700 font-sans leading-relaxed">
 						"Personality development is not merely an addition; it is an essential component of professional readiness."
 					</p>
 					<cite class="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-sans mt-3 block">
@@ -42,20 +41,19 @@
 				</blockquote>
 			</div>
 
-			<!-- Right Column: Point Allocation Rules -->
-			<div class="bg-white border border-slate-200 p-8 shadow-xs rounded-sm space-y-6">
-				<h3 class="text-lg font-bold font-serif text-primary-dark">
+			<div class="bg-[#F8F8F8] border border-slate-200 p-6 rounded-sm space-y-5">
+				<h3 class="text-lg font-bold font-serif text-[#1e3a5f]">
 					Point Allocation Rules
 				</h3>
 				
-				<ul class="space-y-6">
+				<ul class="space-y-5">
 					{#each rules as rule}
 						<li class="flex items-start gap-3">
 							<!-- Red Square Bullet (Figma spec) -->
 							<span class="w-2.5 h-2.5 bg-acad-red mt-1 shrink-0"></span>
 							<div>
-								<h4 class="text-sm font-bold text-slate-800 font-sans">{rule.title}:</h4>
-								<p class="text-xs text-slate-600 leading-relaxed font-sans font-normal mt-1">{rule.desc}</p>
+								<h4 class="text-sm font-semibold text-slate-800 font-sans">{rule.title}:</h4>
+								<p class="text-xs text-slate-500 leading-relaxed font-sans mt-1">{rule.desc}</p>
 							</div>
 						</li>
 					{/each}
@@ -64,16 +62,14 @@
 
 		</div>
 
-		<!-- Bottom Banner: Student Registry Portal (Dark elegant theme) -->
-		<div class="bg-primary-dark text-white p-10 sm:p-14 text-center rounded-sm relative overflow-hidden shadow-sm">
-			<!-- Subtle gold accent block line -->
-			<div class="absolute top-0 left-0 right-0 h-1.5 bg-accent-gold"></div>
+		<div class="bg-[#284B63] text-white p-10 sm:p-14 text-center rounded-sm relative overflow-hidden">
+			<div class="absolute top-0 left-0 right-0 h-1 bg-[#C89B3C]"></div>
 			
-			<div class="max-w-2xl mx-auto space-y-6">
+			<div class="max-w-2xl mx-auto space-y-5">
 				<h2 class="text-2xl sm:text-3xl font-bold font-serif tracking-tight">
 					Student Registry Portal
 				</h2>
-				<p class="text-sm text-slate-350 leading-relaxed font-sans font-normal">
+				<p class="text-sm text-white/80 leading-relaxed font-sans">
 					Access your student profile, upload credentials, view points status, and verify your semester extra-curricular grades.
 				</p>
 				
