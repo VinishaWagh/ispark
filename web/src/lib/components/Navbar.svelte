@@ -34,12 +34,13 @@
 	// Helper to check if a navigation item is active
 	function isActive(href: string): boolean {
 		const path = page.url.pathname;
-		if (href === '/') {
-			return path === '/';
-		}
+		const hash = page.url.hash;
+
 		if (href.startsWith('#')) {
-			// In production, we're on the same page, active state is handled by hashes or scroll
-			return false;
+			return path === '/' && hash === href;
+		}
+		if (href === '/') {
+			return path === '/' && (hash === '' || hash === '#');
 		}
 		return path === href || path.startsWith(href + '/');
 	}
