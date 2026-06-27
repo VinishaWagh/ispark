@@ -27,6 +27,73 @@
 		isOpen = !isOpen;
 	}
 
+	// Authentication state variables
+	let studentName = $state('');
+	let isLoggedIn = $state(false);
+
+	async function checkUserSession() {
+		const token = localStorage.getItem('access_token');
+		if (!token) {
+			isLoggedIn = false;
+			studentName = '';
+			return;
+		}
+
+		try {
+			const response = await fetch('http://localhost:8080/api/auth/profile', {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				if (data && data.student) {
+					studentName = data.student.name;
+					isLoggedIn = true;
+				} else {
+					isLoggedIn = false;
+					studentName = '';
+				}
+			} else {
+				// Token might be invalid or expired
+				localStorage.removeItem('access_token');
+				isLoggedIn = false;
+				studentName = '';
+			}
+		} catch (err) {
+			console.error('Error checking user session:', err);
+		}
+	}
+
+	async function handleLogout() {
+		const token = localStorage.getItem('access_token');
+		localStorage.removeItem('access_token');
+		isLoggedIn = false;
+		studentName = '';
+		closeMenu();
+
+		if (token) {
+			try {
+				await fetch('http://localhost:8080/api/auth/logout', {
+					method: 'POST',
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				});
+			} catch (err) {
+				console.error('Error logging out from server:', err);
+			}
+		}
+		// Refresh page to clear state
+		window.location.href = '/';
+	}
+
+	$effect(() => {
+		checkUserSession();
+	});
+
 	function closeMenu() {
 		isOpen = false;
 	}
@@ -90,13 +157,26 @@
 				</ul>
 			</nav>
 
-			<div class="hidden md:flex items-center">
-				<a
-					href={loginHref}
-					class="inline-flex items-center justify-center border border-slate-300 hover:border-slate-800 text-[13px] font-semibold text-slate-800 px-6 py-2 rounded-md hover:bg-slate-900 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gold focus-visible:ring-offset-2 font-sans"
-				>
-					Portal Login
-				</a>
+			<!-- Right Section: Desktop Portal Login (Outlined academic style) -->
+			<div class="hidden md:flex items-center gap-4">
+				{#if isLoggedIn}
+					<span class="text-xs font-bold text-slate-700 font-sans">
+						Hi, {studentName}
+					</span>
+					<button
+						onclick={handleLogout}
+						class="inline-flex items-center justify-center border border-slate-350 hover:border-slate-800 text-[13px] font-semibold text-slate-800 px-5 py-2 rounded-md hover:bg-slate-900 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gold focus-visible:ring-offset-2 font-sans"
+					>
+						Logout
+					</button>
+				{:else}
+					<a
+						href={loginHref}
+						class="inline-flex items-center justify-center border border-slate-300 hover:border-slate-800 text-[13px] font-semibold text-slate-800 px-6 py-2 rounded-md hover:bg-slate-900 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gold focus-visible:ring-offset-2 font-sans"
+					>
+						Portal Login
+					</a>
+				{/if}
 			</div>
 
 			<div class="flex md:hidden items-center">
@@ -157,14 +237,27 @@
 
 				<div class="h-px bg-slate-200 my-4"></div>
 
+				<!-- Mobile CTAs -->
 				<div class="flex flex-col gap-2.5 px-3 pb-2">
-					<a
-						href={loginHref}
-						onclick={closeMenu}
-						class="flex items-center justify-center w-full py-2.5 rounded-md text-sm font-semibold border border-slate-350 text-slate-800 hover:bg-slate-900 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gold font-sans"
-					>
-						Portal Login
-					</a>
+					{#if isLoggedIn}
+						<div class="text-xs font-bold text-slate-500 mb-1">
+							Logged in as: <span class="text-slate-800">{studentName}</span>
+						</div>
+						<button
+							onclick={handleLogout}
+							class="flex items-center justify-center w-full py-2.5 rounded-md text-sm font-semibold border border-slate-350 text-slate-800 hover:bg-slate-900 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gold font-sans"
+						>
+							Logout
+						</button>
+					{:else}
+						<a
+							href={loginHref}
+							onclick={closeMenu}
+							class="flex items-center justify-center w-full py-2.5 rounded-md text-sm font-semibold border border-slate-350 text-slate-800 hover:bg-slate-900 hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-gold font-sans"
+						>
+							Portal Login
+						</a>
+					{/if}
 				</div>
 			</nav>
 		</div>

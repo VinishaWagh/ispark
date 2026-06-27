@@ -21,6 +21,10 @@ services:
       - PORT=8080
       - DB_HOST=db
       - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=user
+      - DB_NAME=isparc
+      - DB_SSLMODE=disable
     restart: unless-stopped
     depends_on:
       - db
@@ -30,12 +34,24 @@ services:
     environment:
       - POSTGRES_DB=isparc
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres_password
+      - POSTGRES_PASSWORD=user
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=user
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    depends_on:
+      - db
+
 
 volumes:
   pgdata:

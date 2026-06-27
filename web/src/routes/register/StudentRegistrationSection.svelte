@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade, slide } from 'svelte/transition';
+	import { goto } from '$app/navigation';
 
 	const formId = 'student-reg';
 
@@ -21,12 +22,12 @@
 	let showPassword = $state(false);
 	let showConfirmPassword = $state(false);
 
-	// OTP flow simulation states
+	// OTP and Verification states
 	let otpSent = $state(false);
-	let otpSending = $state(false);
 	let enteredOtp = $state('');
 	let otpVerified = $state(false);
-	let otpError = $state('');
+	let errorMessage = $state('');
+	let otpVerifying = $state(false);
 
 	// Final Registration state
 	let registered = $state(false);
@@ -50,9 +51,7 @@
 
 	// Send OTP validation state
 	let isOtpDisabled = $derived(
-		formData.email.trim() === '' ||
-			!formData.email.includes('@') ||
-			!formData.email.endsWith('.com')
+		formData.email.trim() === '' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
 	);
 
 	const featureItems = [
@@ -96,60 +95,146 @@
 		showPassword = false;
 		showConfirmPassword = false;
 		otpSent = false;
-		otpSending = false;
 		enteredOtp = '';
 		otpVerified = false;
-		otpError = '';
+		errorMessage = '';
 		registered = false;
+		submitting = false;
+		otpVerifying = false;
 	}
 
-	function handleSendOtp() {
-		if (isOtpDisabled) return;
-		otpSending = true;
-		otpError = '';
-
-		// Simulate API call for sending OTP
-		setTimeout(() => {
-			otpSending = false;
-			otpSent = true;
-		}, 1500);
+	function handleBackToForm() {
+		otpSent = false;
+		enteredOtp = '';
+		errorMessage = '';
 	}
 
-	function handleVerifyOtp() {
-		otpError = '';
-		// Accept '1234' or '123456' as simulated valid verification OTP code
-		if (enteredOtp === '1234' || enteredOtp === '123456') {
+	async function handleVerifyOtp() {
+		if (!enteredOtp.trim()) {
+			errorMessage = 'Please enter the verification code.';
+			return;
+		}
+
+		otpVerifying = true;
+		errorMessage = '';
+
+		try {
+			const response = await fetch('http://localhost:8080/api/auth/verify-otp', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					email: formData.email,
+					code: enteredOtp.trim()
+				})
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Invalid verification code');
+			}
+
+			if (data.access_token) {
+				localStorage.setItem('access_token', data.access_token);
+			}
 			otpVerified = true;
-		} else {
-			otpError = "Invalid verification code. Enter '1234' to verify.";
+			registered = true;
+			errorMessage = '';
+
+			// Redirect to home page / dashboard after a short delay
+			setTimeout(() => {
+				goto('/');
+			}, 2000);
+		} catch (err) {
+			errorMessage =
+				err instanceof Error
+					? err.message
+					: 'Failed to verify verification code. Please try again.';
+		} finally {
+			otpVerifying = false;
+		}
+	}
+
+	async function handleSendOtp() {
+		if (!formData.email.trim() || !formData.email.includes('@')) {
+			errorMessage = 'Please enter a valid institutional email.';
+			return;
+		}
+
+		if (
+			!formData.fullName.trim() ||
+			!formData.rollNumber.trim() ||
+			!formData.enrollmentNumber.trim() ||
+			!formData.course
+		) {
+			errorMessage = 'Please fill in all Academic and Personal details before sending OTP.';
+			return;
+		}
+
+		if (!allPasswordRequirementsMet) {
+			errorMessage = 'Please ensure your password meets all strength requirements first.';
+			return;
+		}
+
+		if (!passwordsMatch) {
+			errorMessage = 'Passwords do not match!';
+			return;
+		}
+
+		submitting = true;
+		errorMessage = '';
+
+		try {
+			const response = await fetch('http://localhost:8080/api/auth/register', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					name: formData.fullName,
+					roll_no: formData.rollNumber,
+					course_name: formData.course,
+					semester: parseInt(formData.semester),
+					contact_no: formData.mobileNumber,
+					email_id: formData.email,
+					enrollment_no: formData.enrollmentNumber,
+					password: formData.password,
+					confirm_password: formData.confirmPassword
+				})
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to register account');
+			}
+
+			otpSent = true;
+			errorMessage = '';
+		} catch (err) {
+			errorMessage =
+				err instanceof Error ? err.message : 'Failed to submit registration. Please check details.';
+		} finally {
+			submitting = false;
 		}
 	}
 
 	function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 
-		if (!allPasswordRequirementsMet) {
-			alert('Please ensure your password meets all requirements.');
+		if (!otpVerified) {
+			errorMessage = 'Please verify your email OTP before registering.';
 			return;
 		}
 
-		if (!passwordsMatch) {
-			alert('Passwords do not match!');
-			return;
-		}
+		registered = true;
 
-		if (formData.email && !otpVerified) {
-			alert('Please verify your email address by confirming the OTP.');
-			return;
-		}
-
-		submitting = true;
-
-		// Simulate API Submit
+		// Redirect to home page / dashboard after a short delay
 		setTimeout(() => {
-			submitting = false;
-			registered = true;
-		}, 1800);
+			goto('/');
+		}, 2000);
 	}
 </script>
 
@@ -323,6 +408,101 @@
 					>
 						Register Another
 					</button>
+				</div>
+			</div>
+		{:else if otpSent}
+			<!-- OTP Verification Card View -->
+			<div
+				class="p-8 sm:p-12 text-center flex flex-col items-center gap-6"
+				in:fade={{ duration: 400 }}
+			>
+				<div
+					class="w-16 h-16 bg-inst-navy/5 text-inst-navy flex items-center justify-center rounded-full border-2 border-inst-navy/20 animate-pulse"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.8"
+						stroke="currentColor"
+						class="w-8 h-8"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.961l-7.358 4.014a2.25 2.25 0 0 1-2.218 0l-7.358-4.014A2.25 2.25 0 0 1 2.25 9.906V9M21.75 9a2.25 2.25 0 0 0-2.25-2.25h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+						/>
+					</svg>
+				</div>
+
+				<div>
+					<h2 class="text-2xl font-bold text-inst-navy font-serif">Verify Your Email</h2>
+					<p class="text-slate-500 text-sm mt-2 max-w-sm mx-auto">
+						We have sent a verification code to <span class="font-semibold text-slate-800"
+							>{formData.email}</span
+						>. Please enter it below to activate your account.
+					</p>
+				</div>
+
+				{#if errorMessage}
+					<div
+						class="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-lg w-full max-w-md text-left"
+						transition:slide={{ duration: 200 }}
+					>
+						{errorMessage}
+					</div>
+				{/if}
+
+				<div class="w-full max-w-md flex flex-col gap-4">
+					<input
+						type="text"
+						bind:value={enteredOtp}
+						placeholder="Enter Verification Code"
+						class="w-full px-3.5 py-2.5 bg-white rounded-lg border border-slate-250 text-center tracking-widest text-[16px] font-bold text-slate-800 placeholder:text-slate-400 placeholder:tracking-normal focus:outline-none focus:border-acad-red focus:ring-2 focus:ring-acad-red/10 transition-all duration-200"
+					/>
+
+					<button
+						type="button"
+						onclick={handleVerifyOtp}
+						disabled={otpVerifying || !enteredOtp.trim()}
+						class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm tracking-widest uppercase rounded-xl transition duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
+					>
+						{#if otpVerifying}
+							<svg
+								class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<circle
+									class="opacity-25"
+									cx="12"
+									cy="12"
+									r="10"
+									stroke="currentColor"
+									stroke-width="4"
+								></circle>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+								></path>
+							</svg>
+							VERIFYING...
+						{:else}
+							VERIFY OTP
+						{/if}
+					</button>
+
+					<div class="flex justify-between items-center text-xs mt-2 px-1">
+						<button
+							type="button"
+							onclick={handleBackToForm}
+							class="text-slate-500 hover:text-slate-800 font-semibold transition duration-200"
+						>
+							← Back to Details
+						</button>
+						<span class="text-slate-400 font-sans"> Check console or email for OTP. </span>
+					</div>
 				</div>
 			</div>
 		{:else}
@@ -515,9 +695,9 @@
 									id="{formId}-email"
 									type="email"
 									bind:value={formData.email}
-									disabled={otpVerified}
+									disabled={otpVerified || otpSent}
 									placeholder="student@iips.com"
-									class="flex-1 px-3.5 py-2.5 bg-white rounded-lg border border-slate-250 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-acad-red focus:ring-2 focus:ring-acad-red/10 transition-all duration-200 disabled:bg-slate-100 disabled:text-slate-500"
+									class="flex-grow px-3.5 py-2.5 bg-white rounded-lg border border-slate-250 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-acad-red focus:ring-2 focus:ring-acad-red/10 transition-all duration-200 disabled:opacity-75 disabled:bg-slate-50"
 									required
 								/>
 
@@ -525,10 +705,10 @@
 									<button
 										type="button"
 										onclick={handleSendOtp}
-										disabled={isOtpDisabled || otpSending}
+										disabled={isOtpDisabled || submitting}
 										class="shrink-0 px-4 py-2.5 bg-inst-navy hover:bg-inst-navy/90 text-white font-semibold text-xs tracking-wider uppercase rounded-lg disabled:opacity-40 transition duration-200 min-w-[100px] flex items-center justify-center"
 									>
-										{#if otpSending}
+										{#if submitting}
 											<!-- Spinner SVG -->
 											<svg
 												class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -555,6 +735,12 @@
 											SEND OTP
 										{/if}
 									</button>
+								{:else}
+									<span
+										class="shrink-0 px-4 py-2.5 bg-emerald-100 text-emerald-800 border border-emerald-250 font-bold text-xs tracking-wider uppercase rounded-lg flex items-center gap-1 select-none font-sans"
+									>
+										Verified ✓
+									</span>
 								{/if}
 							</div>
 							<p class="text-[10px] text-slate-400 leading-normal">
@@ -575,42 +761,41 @@
 									<input
 										type="text"
 										bind:value={enteredOtp}
-										placeholder="Enter Code (Use '1234' for testing)"
+										placeholder="Enter Code"
 										class="flex-grow px-3.5 py-2.5 bg-white rounded-lg border border-slate-250 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-acad-red focus:ring-2 focus:ring-acad-red/10 transition-all duration-200"
 									/>
 									<button
 										type="button"
 										onclick={handleVerifyOtp}
+										disabled={otpVerifying || !enteredOtp.trim()}
 										class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs tracking-wider uppercase rounded-lg transition duration-200"
 									>
-										VERIFY CODE
+										{#if otpVerifying}
+											<svg
+												class="animate-spin h-4 w-4 text-white mr-1"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<circle
+													class="opacity-25"
+													cx="12"
+													cy="12"
+													r="10"
+													stroke="currentColor"
+													stroke-width="4"
+												></circle>
+												<path
+													class="opacity-75"
+													fill="currentColor"
+													d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+												></path>
+											</svg>
+											Verifying...
+										{:else}
+											Verify Code
+										{/if}
 									</button>
 								</div>
-								{#if otpError}
-									<div class="text-xs text-rose-600 font-medium">{otpError}</div>
-								{/if}
-							</div>
-						{/if}
-
-						{#if otpVerified}
-							<!-- OTP Verified indicator -->
-							<div
-								class="flex items-center gap-2 text-emerald-600 text-xs font-semibold p-2 bg-emerald-50 rounded-lg border border-emerald-150"
-								transition:slide={{ duration: 200 }}
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="3"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									class="w-4 h-4"
-								>
-									<polyline points="20 6 9 17 4 12" />
-								</svg>
-								<span>Email Address Verified Successfully</span>
 							</div>
 						{/if}
 
@@ -860,6 +1045,15 @@
 						</span>
 					</label>
 
+					{#if errorMessage}
+						<div
+							class="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-lg w-full text-left"
+							transition:slide={{ duration: 200 }}
+						>
+							{errorMessage}
+						</div>
+					{/if}
+
 					<!-- Buttons -->
 					<div class="flex flex-col gap-3 w-full">
 						<button
@@ -868,7 +1062,7 @@
 								!formData.consent ||
 								!allPasswordRequirementsMet ||
 								!passwordsMatch ||
-								(formData.email !== '' && !otpVerified)}
+								!otpVerified}
 							class="w-full py-3.5 bg-acad-red hover:bg-acad-red/90 text-white font-bold text-sm tracking-widest uppercase rounded-xl transition duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
 						>
 							{#if submitting}
