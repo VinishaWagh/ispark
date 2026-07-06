@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { API_BASE_URL } from '$lib/config';
+
 	// Define interfaces
 	interface Student {
 		rank: string;
@@ -52,289 +54,75 @@
 	// Filter state for Academic Year
 	let selectedYear = $state('2025-26');
 
-	// Mock Student Data (changes slightly based on Year to show interactivity)
-	const students2025: Student[] = [
-		{
-			rank: '01',
-			initials: 'AS',
-			name: 'Aarav Sharma',
-			course: 'Int. MCA',
-			sem: 6,
-			activities: 28,
-			credits: 145,
-			grade: 'O',
-			avatarBg: 'bg-amber-100 text-amber-800 border-amber-300'
-		},
-		{
-			rank: '02',
-			initials: 'PP',
-			name: 'Priya Patel',
-			course: 'Int. MCA',
-			sem: 6,
-			activities: 26,
-			credits: 138,
-			grade: 'O',
-			avatarBg: 'bg-purple-100 text-purple-800 border-purple-300'
-		},
-		{
-			rank: '03',
-			initials: 'DR',
-			name: 'Deepak Rathore',
-			course: 'Int. MCA',
-			sem: 5,
-			activities: 24,
-			credits: 130,
-			grade: 'A',
-			avatarBg: 'bg-orange-100 text-orange-800 border-orange-300'
-		},
-		{
-			rank: '04',
-			initials: 'RV',
-			name: 'Rahul Verma',
-			course: 'B.Tech CSE',
-			sem: 6,
-			activities: 24,
-			credits: 118,
-			grade: 'A',
-			isSelf: true,
-			avatarBg: 'bg-red-100 text-red-800 border-red-300'
-		},
-		{
-			rank: '05',
-			initials: 'SK',
-			name: 'Sneha Kulkarni',
-			course: 'B.Tech CSE',
-			sem: 6,
-			activities: 22,
-			credits: 112,
-			grade: 'A',
-			avatarBg: 'bg-teal-100 text-teal-800 border-teal-300'
-		},
-		{
-			rank: '06',
-			initials: 'AM',
-			name: 'Arjun Mehta',
-			course: 'MCA',
-			sem: 4,
-			activities: 20,
-			credits: 108,
-			grade: 'A',
-			avatarBg: 'bg-blue-100 text-blue-800 border-blue-300'
-		},
-		{
-			rank: '07',
-			initials: 'PD',
-			name: 'Pooja Desai',
-			course: 'MBA (MS)',
-			sem: 4,
-			activities: 19,
-			credits: 102,
-			grade: 'A',
-			avatarBg: 'bg-pink-100 text-pink-800 border-pink-300'
-		},
-		{
-			rank: '08',
-			initials: 'RJ',
-			name: 'Rohit Jaiswal',
-			course: 'B.Tech CSE',
-			sem: 5,
-			activities: 18,
-			credits: 96,
-			grade: 'B',
-			avatarBg: 'bg-indigo-100 text-indigo-800 border-indigo-300'
-		},
-		{
-			rank: '09',
-			initials: 'KN',
-			name: 'Kavya Nair',
-			course: 'Int. MCA',
-			sem: 4,
-			activities: 17,
-			credits: 88,
-			grade: 'B',
-			avatarBg: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300'
-		},
-		{
-			rank: '10',
-			initials: 'MS',
-			name: 'Manish Soni',
-			course: 'MCA',
-			sem: 6,
-			activities: 16,
-			credits: 82,
-			grade: 'B',
-			avatarBg: 'bg-emerald-100 text-emerald-800 border-emerald-300'
-		},
-		{
-			rank: '11',
-			initials: 'NT',
-			name: 'Nisha Trivedi',
-			course: 'MBA',
-			sem: 4,
-			activities: 14,
-			credits: 76,
-			grade: 'B',
-			avatarBg: 'bg-sky-100 text-sky-800 border-sky-300'
-		},
-		{
-			rank: '12',
-			initials: 'SG',
-			name: 'Sachin Gupta',
-			course: 'B.Tech IT',
-			sem: 5,
-			activities: 13,
-			credits: 71,
-			grade: 'B',
-			avatarBg: 'bg-slate-105 text-slate-800 border-slate-300'
-		}
-	];
+	let token = localStorage.getItem('access_token') || '';
+	let leaderboardData = $state<any[]>([]);
+	let loading = $state(true);
 
-	const students2024: Student[] = [
-		{
-			rank: '01',
-			initials: 'PP',
-			name: 'Priya Patel',
-			course: 'Int. MCA',
-			sem: 4,
-			activities: 24,
-			credits: 128,
-			grade: 'A',
-			avatarBg: 'bg-purple-100 text-purple-800 border-purple-300'
-		},
-		{
-			rank: '02',
-			initials: 'AS',
-			name: 'Aarav Sharma',
-			course: 'Int. MCA',
-			sem: 4,
-			activities: 22,
-			credits: 122,
-			grade: 'A',
-			avatarBg: 'bg-amber-100 text-amber-800 border-amber-300'
-		},
-		{
-			rank: '03',
-			initials: 'SK',
-			name: 'Sneha Kulkarni',
-			course: 'B.Tech CSE',
-			sem: 4,
-			activities: 21,
-			credits: 115,
-			grade: 'A',
-			avatarBg: 'bg-teal-100 text-teal-800 border-teal-300'
-		},
-		{
-			rank: '04',
-			initials: 'RV',
-			name: 'Rahul Verma',
-			course: 'B.Tech CSE',
-			sem: 4,
-			activities: 18,
-			credits: 104,
-			grade: 'A',
-			isSelf: true,
-			avatarBg: 'bg-red-100 text-red-800 border-red-300'
-		},
-		{
-			rank: '05',
-			initials: 'DR',
-			name: 'Deepak Rathore',
-			course: 'Int. MCA',
-			sem: 3,
-			activities: 19,
-			credits: 101,
-			grade: 'A',
-			avatarBg: 'bg-orange-100 text-orange-800 border-orange-300'
-		},
-		{
-			rank: '06',
-			initials: 'PD',
-			name: 'Pooja Desai',
-			course: 'MBA (MS)',
-			sem: 2,
-			activities: 16,
-			credits: 92,
-			grade: 'B',
-			avatarBg: 'bg-pink-100 text-pink-800 border-pink-300'
-		},
-		{
-			rank: '07',
-			initials: 'RJ',
-			name: 'Rohit Jaiswal',
-			course: 'B.Tech CSE',
-			sem: 3,
-			activities: 15,
-			credits: 89,
-			grade: 'B',
-			avatarBg: 'bg-indigo-100 text-indigo-800 border-indigo-300'
-		},
-		{
-			rank: '08',
-			initials: 'AM',
-			name: 'Arjun Mehta',
-			course: 'MCA',
-			sem: 2,
-			activities: 14,
-			credits: 85,
-			grade: 'B',
-			avatarBg: 'bg-blue-100 text-blue-800 border-blue-300'
-		},
-		{
-			rank: '09',
-			initials: 'KN',
-			name: 'Kavya Nair',
-			course: 'Int. MCA',
-			sem: 2,
-			activities: 12,
-			credits: 78,
-			grade: 'B',
-			avatarBg: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300'
-		},
-		{
-			rank: '10',
-			initials: 'MS',
-			name: 'Manish Soni',
-			course: 'MCA',
-			sem: 4,
-			activities: 11,
-			credits: 72,
-			grade: 'B',
-			avatarBg: 'bg-emerald-100 text-emerald-800 border-emerald-300'
-		},
-		{
-			rank: '11',
-			initials: 'NT',
-			name: 'Nisha Trivedi',
-			course: 'MBA',
-			sem: 2,
-			activities: 9,
-			credits: 65,
-			grade: 'B',
-			avatarBg: 'bg-sky-100 text-sky-800 border-sky-300'
-		},
-		{
-			rank: '12',
-			initials: 'SG',
-			name: 'Sachin Gupta',
-			course: 'B.Tech IT',
-			sem: 3,
-			activities: 8,
-			credits: 60,
-			grade: 'B',
-			avatarBg: 'bg-slate-105 text-slate-800 border-slate-300'
+	async function loadLeaderboard() {
+		try {
+			const res = await fetch(`${API_BASE_URL}/api/student/leaderboard`, {
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
+			if (res.ok) {
+				leaderboardData = await res.json();
+			}
+		} catch (err) {
+			console.error('Error fetching leaderboard:', err);
+		} finally {
+			loading = false;
 		}
-	];
+	}
 
-	// Derived state for the active list
-	let activeStudents = $derived(selectedYear === '2025-26' ? students2025 : students2024);
+	$effect(() => {
+		loadLeaderboard();
+	});
+
+	// Derived state for the active list from API
+	let activeStudents = $derived.by<Student[]>(() => {
+		return leaderboardData.map((item: any, idx: number) => {
+			const initials = item.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+			const rankVal = idx + 1;
+			const rankStr = rankVal < 10 ? `0${rankVal}` : `${rankVal}`;
+			
+			// Simple grade thresholds based on credits
+			let grade: 'O' | 'A' | 'B' = 'B';
+			if (item.points >= 120) grade = 'O';
+			else if (item.points >= 80) grade = 'A';
+			
+			const colors = [
+				'bg-amber-100 text-amber-800 border-amber-300',
+				'bg-purple-100 text-purple-800 border-purple-300',
+				'bg-orange-100 text-orange-800 border-orange-300',
+				'bg-red-100 text-red-800 border-red-300',
+				'bg-teal-100 text-teal-800 border-teal-300',
+				'bg-blue-100 text-blue-800 border-blue-300'
+			];
+			const avatarBg = colors[idx % colors.length];
+
+			return {
+				rank: rankStr,
+				initials: initials,
+				name: item.name,
+				course: item.course_name,
+				sem: item.semester,
+				activities: Math.max(Math.round(item.points / 12), 1),
+				credits: item.points,
+				grade: grade,
+				isSelf: item.is_self,
+				avatarBg: avatarBg
+			};
+		});
+	});
 
 	// Derived Podium Students
-	let podiumFirst = $derived(activeStudents.find((s) => s.rank === '01')!);
-	let podiumSecond = $derived(activeStudents.find((s) => s.rank === '02')!);
-	let podiumThird = $derived(activeStudents.find((s) => s.rank === '03')!);
+	let podiumFirst = $derived(activeStudents.find((s) => s.rank === '01') || { name: '—', credits: 0, initials: '—', avatarBg: 'bg-slate-100', course: '', sem: 0, grade: 'B' as const });
+	let podiumSecond = $derived(activeStudents.find((s) => s.rank === '02') || { name: '—', credits: 0, initials: '—', avatarBg: 'bg-slate-100', course: '', sem: 0, grade: 'B' as const });
+	let podiumThird = $derived(activeStudents.find((s) => s.rank === '03') || { name: '—', credits: 0, initials: '—', avatarBg: 'bg-slate-100', course: '', sem: 0, grade: 'B' as const });
 
 	// Derived Rahul Verma (YOU) credits to show dynamic Recognition Levels
-	let currentUserCredits = $derived(activeStudents.find((s) => s.isSelf)?.credits || 118);
+	let currentUserCredits = $derived(activeStudents.find((s) => s.isSelf)?.credits || 0);
 
 	// Category Champions Data
 	const champions2025: Champion[] = [
@@ -549,6 +337,11 @@
 				return {
 					badge: 'bg-blue-50 text-blue-700 border-blue-200',
 					underline: 'border-blue-500'
+				};
+			default:
+				return {
+					badge: 'bg-slate-50 text-slate-700 border-slate-200',
+					underline: 'border-slate-500'
 				};
 		}
 	}
