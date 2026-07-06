@@ -1,41 +1,62 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 
-	// Student Profile Information matching Rahul Verma
-	const studentInfo = {
-		name: 'Rahul Verma',
-		rollNo: 'CSE-2K23-78',
-		enrollmentNo: 'DX7890543',
-		semester: 'VI (Sixth)',
-		course: 'B.Tech',
-		department: 'Computer Science',
-		batch: '2021 – 2026',
-		institute: 'IIPS, DAVV Indore'
-	};
+	import { API_BASE_URL } from '$lib/config';
 
-	// Credit distribution categories
-	const creditCategories = [
-		{ category: 'Technical Skills', activities: 8, credits: 48, contribution: '41%' },
-		{ category: 'Public Speaking', activities: 4, credits: 24, contribution: '20%' },
-		{ category: 'Research', activities: 3, credits: 18, contribution: '15%' },
-		{ category: 'Social Service', activities: 3, credits: 12, contribution: '10%' },
-		{ category: 'Sports', activities: 4, credits: 10, contribution: '8%' },
-		{ category: 'Leadership', activities: 2, credits: 6, contribution: '6%' }
-	];
+	let token = localStorage.getItem('access_token') || '';
+	let studentInfo = $state({
+		name: '',
+		rollNo: '',
+		enrollmentNo: '',
+		semester: '',
+		course: '',
+		department: '',
+		batch: '',
+		institute: ''
+	});
+	let creditCategories = $state<any[]>([]);
+	let totalActivities = $state(0);
+	let totalCredits = $state(0);
+	let totalContribution = $state('0%');
+	let semesterSummary = $state<any[]>([]);
+	let loading = $state(true);
 
-	// Totals
-	const totalActivities = 24;
-	const totalCredits = 118;
-	const totalContribution = '100%';
+	async function loadMarksheet() {
+		try {
+			const res = await fetch(`${API_BASE_URL}/api/student/marksheet`, {
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
 
-	// Semester contribution summary
-	const semesterSummary = [
-		{ semester: 'Semester I', credits: 12, activities: 3, cumulative: 12 },
-		{ semester: 'Semester II', credits: 18, activities: 5, cumulative: 30 },
-		{ semester: 'Semester III', credits: 20, activities: 5, cumulative: 50 },
-		{ semester: 'Semester IV', credits: 24, activities: 6, cumulative: 74 },
-		{ semester: 'Semester V', credits: 44, activities: 9, cumulative: 118 }
-	];
+			if (res.ok) {
+				const data = await res.json();
+				studentInfo = {
+					name: data.student_info.name,
+					rollNo: data.student_info.roll_no,
+					enrollmentNo: data.student_info.enrollment_no,
+					semester: data.student_info.semester,
+					course: data.student_info.course,
+					department: data.student_info.department,
+					batch: data.student_info.batch,
+					institute: data.student_info.institute
+				};
+				creditCategories = data.credit_categories || [];
+				totalActivities = data.total_activities;
+				totalCredits = data.total_credits;
+				totalContribution = '100%';
+				semesterSummary = data.semester_summary || [];
+			}
+		} catch (err) {
+			console.error('Error fetching marksheet:', err);
+		} finally {
+			loading = false;
+		}
+	}
+
+	$effect(() => {
+		loadMarksheet();
+	});
 
 	// Toast State
 	let toastMessage = $state('');
