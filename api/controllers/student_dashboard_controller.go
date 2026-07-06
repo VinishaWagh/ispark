@@ -193,15 +193,15 @@ func GetDashboardStats(c *fiber.Ctx) error {
 	config.DB.Where("student_roll_no = ?", rollNo).Order("created_at desc").Limit(5).Find(&recentActivities)
 
 	return c.JSON(fiber.Map{
-		"activities_participated": activitiesCount,
-		"certificates_uploaded":   certificatesCount,
-		"pending_certificates":    pendingCertificatesCount,
-		"approved_certificates":   approvedCertificatesCount,
-		"rejected_certificates":   rejectedCertificatesCount,
-		"credits_earned":          sumResult.Total,
-		"current_rank":            rank,
-		"total_students":          totalStudents,
-		"recent_activities":       recentActivities,
+		"activities_participated":    activitiesCount,
+		"certificates_uploaded":       certificatesCount,
+		"pending_certificates":        pendingCertificatesCount,
+		"approved_certificates":       approvedCertificatesCount,
+		"rejected_certificates":       rejectedCertificatesCount,
+		"credits_earned":              sumResult.Total,
+		"current_rank":                rank,
+		"total_students":              totalStudents,
+		"recent_activities":           recentActivities,
 	})
 }
 
@@ -551,12 +551,12 @@ func GetMarksheet(c *fiber.Ctx) error {
 	}{
 		"TECHNICAL":       {"Technical Skills", 0, 0, "0%"},
 		"PUBLIC SPEAKING": {"Public Speaking", 0, 0, "0%"},
-		"RESEARCH":        {"Research", 0, 0, "0%"},
-		"SOCIAL SERVICE":  {"Social Service", 0, 0, "0%"},
-		"SPORTS":          {"Sports", 0, 0, "0%"},
-		"LEADERSHIP":      {"Leadership", 0, 0, "0%"},
-		"CULTURAL":        {"Cultural", 0, 0, "0%"},
-		"LITERARY":        {"Literary", 0, 0, "0%"},
+		"RESEARCH":         {"Research", 0, 0, "0%"},
+		"SOCIAL SERVICE":   {"Social Service", 0, 0, "0%"},
+		"SPORTS":           {"Sports", 0, 0, "0%"},
+		"LEADERSHIP":       {"Leadership", 0, 0, "0%"},
+		"CULTURAL":         {"Cultural", 0, 0, "0%"},
+		"LITERARY":         {"Literary", 0, 0, "0%"},
 	}
 
 	totalCredits := 0
@@ -651,14 +651,14 @@ func GetMarksheet(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"student_info": fiber.Map{
-			"name":          student.Name,
-			"roll_no":       student.RollNo,
-			"enrollment_no": student.EnrollmentNo,
-			"semester":      getOrdinalSemester(student.Semester),
-			"course":        student.CourseName,
-			"department":    "DAVV Department",
-			"batch":         fmt.Sprintf("%d – %d", time.Now().Year()-student.Semester/2-1, time.Now().Year()+3),
-			"institute":     "IIPS, DAVV Indore",
+			"name":           student.Name,
+			"roll_no":        student.RollNo,
+			"enrollment_no":  student.EnrollmentNo,
+			"semester":       getOrdinalSemester(student.Semester),
+			"course":         student.CourseName,
+			"department":     "DAVV Department",
+			"batch":          fmt.Sprintf("%d – %d", time.Now().Year()-student.Semester/2-1, time.Now().Year()+3),
+			"institute":      "IIPS, DAVV Indore",
 		},
 		"credit_categories": categoriesList,
 		"total_activities":  totalActivities,
@@ -682,7 +682,7 @@ func getOrdinalSemester(sem int) string {
 	if sem >= 1 && sem <= 10 {
 		return fmt.Sprintf("%s (%s)", roman, ordinals[sem-1])
 	}
-	return fmt.Sprintf("%s", roman)
+	return roman
 }
 
 type ChangePasswordInput struct {
