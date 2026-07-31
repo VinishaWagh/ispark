@@ -168,6 +168,9 @@
 			const profileData = await profileRes.json();
 			student = profileData.student;
 
+			// Fetch the student's notifications for the bell
+			await loadNotifications();
+
 			// Fetch dashboard statistics
 			const statsRes = await fetch(`${API_BASE_URL}/api/student/dashboard/stats`, {
 				headers: {
@@ -207,26 +210,6 @@
 					};
 				});
 			}
-			// Fetch notifications
-			try {
-				const notifRes = await fetch(`${API_BASE_URL}/api/student/notifications`, {
-					headers: { Authorization: `Bearer ${token}` }
-				});
-				if (notifRes.ok) {
-					const notifData = await notifRes.json();
-					if (notifData && notifData.length > 0) {
-						/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-						notifications = notifData.map((item: any) => ({
-							id: item.id,
-							text: item.text,
-							time: item.time || 'Recently',
-							unread: item.unread !== undefined ? item.unread : true
-						}));
-					}
-				}
-			} catch (notifErr) {
-				console.error('Error loading notifications:', notifErr);
-			}
 		} catch (err) {
 			console.error('Error loading dashboard data:', err);
 		} finally {
@@ -244,34 +227,83 @@
 	let uploading = $state(false);
 	let uploadSuccess = $state(false);
 
-	// Notifications state
-	interface NotificationItem {
-		id: number;
-		text: string;
-		time: string;
-		unread: boolean;
+	// Notifications (fetched from the backend)
+	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+	let notifications = $state<any[]>([]);
+	let unreadCount = $state(0);
+
+	// Turns an ISO timestamp into a friendly relative label (e.g. "2 hours ago").
+	function formatRelativeTime(dateStr: string) {
+		if (!dateStr) return '';
+		const then = new Date(dateStr).getTime();
+		if (Number.isNaN(then)) return '';
+		const diffMs = Math.max(0, Date.now() - then);
+		const minutes = Math.floor(diffMs / 60000);
+		if (minutes < 1) return 'Just now';
+		if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+		const hours = Math.floor(minutes / 60);
+		if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+		const days = Math.floor(hours / 24);
+		if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
+		return formatDate(dateStr);
 	}
 
-	let notifications = $state<NotificationItem[]>([
-		{
-			id: 1,
-			text: "Your certificate for 'Robotics Workshop' was audited.",
-			time: '2 hours ago',
-			unread: true
-		},
-		{
-			id: 2,
-			text: 'Debate Championship points approved: +15 credits.',
-			time: '1 day ago',
-			unread: false
-		},
-		{
-			id: 3,
-			text: "New Activity registered: 'Annual Sports Meet 2026'.",
-			time: '3 days ago',
-			unread: false
+	async function loadNotifications() {
+		if (!token) return;
+		try {
+			const res = await fetch(`${API_BASE_URL}/api/student/notifications`, {
+				headers: { Authorization: `Bearer ${token}` }
+			});
+			if (res.ok) {
+				const data = await res.json();
+				/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+				notifications = (data.notifications || []).map((n: any) => ({
+					id: n.id,
+					title: n.title,
+					text: n.message,
+					time: formatRelativeTime(n.created_at),
+					unread: !n.is_read
+				}));
+				unreadCount = data.unread_count || 0;
+			}
+		} catch (err) {
+			console.error('Error loading notifications:', err);
 		}
-	]);
+	}
+
+	async function markNotificationRead(id: number) {
+		const notice = notifications.find((n) => n.id === id);
+		if (!notice || !notice.unread) return;
+		try {
+			const res = await fetch(`${API_BASE_URL}/api/student/notifications/${id}/read`, {
+				method: 'PUT',
+				headers: { Authorization: `Bearer ${token}` }
+			});
+			if (res.ok) {
+				notice.unread = false;
+				notifications = [...notifications];
+				unreadCount = Math.max(0, unreadCount - 1);
+			}
+		} catch (err) {
+			console.error('Error marking notification read:', err);
+		}
+	}
+
+	async function markAllNotificationsRead() {
+		if (unreadCount === 0) return;
+		try {
+			const res = await fetch(`${API_BASE_URL}/api/student/notifications/read-all`, {
+				method: 'PUT',
+				headers: { Authorization: `Bearer ${token}` }
+			});
+			if (res.ok) {
+				notifications = notifications.map((n) => ({ ...n, unread: false }));
+				unreadCount = 0;
+			}
+		} catch (err) {
+			console.error('Error marking all notifications read:', err);
+		}
+	}
 
 	// Derived activities from backend recent_activities
 	let activities = $derived(
@@ -711,8 +743,14 @@
 								d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
 							/>
 						</svg>
-						<!-- Active dot indicator -->
-						<span class="absolute top-2 right-2.5 w-2 h-2 bg-[#881B1B] rounded-full"></span>
+						<!-- Unread count badge -->
+						{#if unreadCount > 0}
+							<span
+								class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold text-white bg-[#881B1B] rounded-full"
+							>
+								{unreadCount > 99 ? '99+' : unreadCount}
+							</span>
+						{/if}
 					</button>
 
 					{#if isNotificationsOpen}
@@ -720,25 +758,48 @@
 							transition:slide={{ duration: 150 }}
 							class="absolute right-0 top-12 w-80 bg-white border border-slate-200 rounded-xl shadow-lg py-2.5 z-40 mt-1"
 						>
-							<h3
-								class="px-4 py-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100"
-							>
-								Notifications
-							</h3>
-							<div class="max-h-64 overflow-y-auto">
-								{#each notifications as notice}
-									<div
-										class="px-4 py-3 hover:bg-slate-50 border-b border-slate-50 last:border-b-0 flex gap-2.5"
+							<div class="flex items-center justify-between px-4 py-1.5 border-b border-slate-100">
+								<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+									Notifications
+								</h3>
+								{#if unreadCount > 0}
+									<button
+										onclick={markAllNotificationsRead}
+										class="text-[10px] font-semibold text-[#881B1B] hover:underline"
 									>
-										{#if notice.unread}
-											<span class="w-2.5 h-2.5 bg-[#881B1B] rounded-full mt-1.5 shrink-0"></span>
-										{/if}
-										<div class="flex-grow">
-											<p class="text-xs text-slate-700 font-semibold">{notice.text}</p>
-											<span class="text-[10px] text-slate-400 block mt-1">{notice.time}</span>
-										</div>
-									</div>
-								{/each}
+										Mark all as read
+									</button>
+								{/if}
+							</div>
+							<div class="max-h-64 overflow-y-auto">
+								{#if notifications.length === 0}
+									<p class="px-4 py-6 text-center text-xs text-slate-400">
+										You have no notifications yet.
+									</p>
+								{:else}
+									{#each notifications as notice}
+										<button
+											type="button"
+											onclick={() => markNotificationRead(notice.id)}
+											class="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-50 last:border-b-0 flex gap-2.5"
+										>
+											{#if notice.unread}
+												<span class="w-2.5 h-2.5 bg-[#881B1B] rounded-full mt-1.5 shrink-0"></span>
+											{:else}
+												<span class="w-2.5 h-2.5 shrink-0"></span>
+											{/if}
+											<div class="flex-grow">
+												{#if notice.title}
+													<p class="text-xs text-slate-800 font-bold">{notice.title}</p>
+												{/if}
+												<p class="text-xs text-slate-700 {notice.unread ? 'font-semibold' : ''}">
+													{notice.text}
+												</p>
+												<span class="text-[10px] text-slate-400 block mt-1">{notice.time}</span>
+											</div>
+										</button>
+									{/each}
+								{/if}
 							</div>
 						</div>
 					{/if}

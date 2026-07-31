@@ -366,8 +366,35 @@ func SendStudentNotice(c *fiber.Ctx) error {
 	// 2. Inject the custom input.Message into the email template
 	msg := fmt.Sprintf("Dear %s,\n\n%s\n\nRegards,\n%s", student.Name, input.Message, admin.Name)
 
-	if err := utils.SendEmail(student.EmailID, "iSPARC Notice", msg); err != nil {
-		return errJSON(c, fiber.StatusInternalServerError, "Failed to dispatch email")
+	// A notice has to reach the student's notification bell as well as their
+	// inbox, so the endpoint must not report success when only one of the two
+	// landed. The notification is written first and the email is dispatched
+	// inside the same transaction: if the notification cannot be stored no
+	// email goes out at all, and if the email fails the notification is rolled
+	// back, so a retry re-sends the whole notice rather than duplicating the
+	// bell entry for an email the student never received.
+	//
+	// KNOWN LIMITATION (tracked reliability follow-up): the email is an
+	// external side effect inside a database transaction, so the one window
+	// this does not cover is the commit itself failing after the mail server
+	// has already accepted the message. The rollback cannot unsend that email,
+	// and the admin's retry sends a second copy. Closing it properly needs the
+	// email to become a queued outbox row committed with the notification and
+	// drained by a dispatcher, which is deliberately out of scope here rather
+	// than half-built: an outbox without a retrying worker would simply move
+	// the silent-loss window instead of removing it.
+	var emailErr error
+	if err := config.DB.Transaction(func(tx *gorm.DB) error {
+		if err := createNotificationTx(tx, student.RollNo, "New Notice", input.Message, models.NotificationTypeNotice); err != nil {
+			return err
+		}
+		emailErr = utils.SendEmail(student.EmailID, "iSPARC Notice", msg)
+		return emailErr
+	}); err != nil {
+		if emailErr != nil {
+			return errJSON(c, fiber.StatusInternalServerError, "Failed to dispatch email")
+		}
+		return errJSON(c, fiber.StatusInternalServerError, "Failed to record the notice notification, please retry")
 	}
 
 	return c.JSON(fiber.Map{"message": "Notice sent successfully"})
@@ -662,9 +689,49 @@ func updateCertificateStatus(c *fiber.Ctx, status string) error {
 		}
 	}
 
+	previousStatus := cert.Status
 	cert.Status = status
-	if err := config.DB.Save(&cert).Error; err != nil {
-		return errJSON(c, fiber.StatusInternalServerError, "Failed to update certificate status")
+
+	// The decision and the student's notification are written in one
+	// transaction. A student is entitled to be told about a decision on their
+	// certificate, so a decision that cannot be delivered must not be recorded
+	// either: the rollback leaves the certificate at its previous status, the
+	// endpoint reports failure rather than success, and the same request can be
+	// retried once notification storage recovers.
+	//
+	// On approval the notification doubles as the credits-awarded notice, since
+	// credits are granted when a certificate is approved.
+	//
+	// Only an actual status transition is notifiable. Re-sending the same
+	// decision (a retry of an already-delivered approval, or a double-clicked
+	// approve button) writes no second notification, so the student never
+	// receives two for one decision.
+	if err := config.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(&cert).Error; err != nil {
+			return err
+		}
+		if previousStatus == status {
+			return nil
+		}
+
+		switch status {
+		case "Approved":
+			message := fmt.Sprintf("Your certificate for %q has been approved.", cert.ActivityName)
+			if cert.Credits > 0 {
+				message = fmt.Sprintf("Your certificate for %q has been approved. You earned %d credits.", cert.ActivityName, cert.Credits)
+			}
+			return createNotificationTx(tx, cert.StudentRollNo, "Certificate Approved", message, models.NotificationTypeCertificate)
+		case "Rejected":
+			message := fmt.Sprintf("Your certificate for %q was rejected.", cert.ActivityName)
+			if cert.RejectionReason != "" {
+				message = fmt.Sprintf("Your certificate for %q was rejected. Reason: %s", cert.ActivityName, cert.RejectionReason)
+			}
+			return createNotificationTx(tx, cert.StudentRollNo, "Certificate Rejected", message, models.NotificationTypeCertificate)
+		}
+		return nil
+	}); err != nil {
+		cert.Status = previousStatus
+		return errJSON(c, fiber.StatusInternalServerError, "Failed to update certificate status and notify the student, please retry")
 	}
 
 	return c.JSON(fiber.Map{"message": "Certificate status updated to " + status, "certificate": cert})

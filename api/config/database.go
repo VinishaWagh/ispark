@@ -44,7 +44,7 @@ func ConnectDB() {
 
 	// Auto Migration
 	log.Println("Running AutoMigration...")
-	err = DB.AutoMigrate(&models.Student{}, &models.OTP{}, &models.Admin{}, &models.Activity{}, &models.Certificate{}, &models.Enrollment{}, &models.SystemSetting{}, &models.AdminNote{}, &models.Track{}, &models.Announcement{}, &models.GeneratedReport{}, &models.ScheduledReport{}, &models.ReportAuditLog{}, &models.BatchOverride{})
+	err = DB.AutoMigrate(&models.Student{}, &models.OTP{}, &models.Admin{}, &models.Activity{}, &models.Certificate{}, &models.Enrollment{}, &models.SystemSetting{}, &models.AdminNote{}, &models.Track{}, &models.Announcement{}, &models.GeneratedReport{}, &models.ScheduledReport{}, &models.ReportAuditLog{}, &models.Notification{}, &models.BatchOverride{})
 
 	if err != nil {
 		log.Fatalf("Failed to run database migrations: %v", err)

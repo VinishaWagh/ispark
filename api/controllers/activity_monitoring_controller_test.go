@@ -14,6 +14,7 @@ import (
 	"github.com/iips-oss/ispark/api/config"
 	"github.com/iips-oss/ispark/api/controllers"
 	"github.com/iips-oss/ispark/api/models"
+	"github.com/iips-oss/ispark/api/routes"
 	"github.com/iips-oss/ispark/api/utils"
 	"gorm.io/gorm"
 )
@@ -324,26 +325,15 @@ func TestSendActivityMonitoringReminder(t *testing.T) {
 }
 
 func TestAssignedBatchIsolation_AttentionStudentsAndReminder(t *testing.T) {
-	app, _, _ := setupActivityMonitoringApp(t)
+	// Seed the fixtures, then discard the hand-wired app in favour of the real
+	// route table. This test asserts that a reminder reaches the student, so it
+	// has to exercise the same handlers and middleware the application serves:
+	// wiring the routes by hand here previously let it pass against a handler
+	// the portal no longer calls.
+	setupActivityMonitoringApp(t)
 
-	// Register student route for notification verification
-	studentAuthMW := func(c *fiber.Ctx) error {
-		authHeader := c.Get("Authorization")
-		if authHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing token"})
-		}
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token header"})
-		}
-		claims, err := utils.ValidateAccessToken(parts[1])
-		if err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
-		}
-		c.Locals("roll_no", claims.RollNo)
-		return c.Next()
-	}
-	app.Get("/api/student/notifications", studentAuthMW, controllers.GetStudentNotifications)
+	app := fiber.New()
+	routes.SetupRoutes(app)
 
 	// Create scoped Admin A for IT2K24
 	hashedPwd, _ := utils.HashPassword("AdminPass123!")
@@ -472,7 +462,8 @@ func TestAssignedBatchIsolation_AttentionStudentsAndReminder(t *testing.T) {
 		t.Errorf("Expected status 200 for valid batch reminder, got %d", respValid.StatusCode)
 	}
 
-	// Verify student-visible reminder notification endpoint
+	// Verify the reminder through the notification endpoint the portal's bell
+	// actually reads, in that endpoint's response format.
 	tokenStudent24, _ := utils.GenerateAccessToken(student24.RollNo, student24.EmailID, "student")
 	reqNotif := httptest.NewRequest("GET", "/api/student/notifications", nil)
 	reqNotif.Header.Set("Authorization", "Bearer "+tokenStudent24)
@@ -485,14 +476,53 @@ func TestAssignedBatchIsolation_AttentionStudentsAndReminder(t *testing.T) {
 		t.Fatalf("Expected status 200 for student notifications, got %d", respNotif.StatusCode)
 	}
 
-	var notifs []controllers.StudentNotificationResponse
-	if err := json.NewDecoder(respNotif.Body).Decode(&notifs); err != nil {
+	var notifBody struct {
+		Notifications []models.Notification `json:"notifications"`
+		UnreadCount   int                   `json:"unread_count"`
+		Total         int                   `json:"total"`
+	}
+	if err := json.NewDecoder(respNotif.Body).Decode(&notifBody); err != nil {
 		t.Fatalf("Failed to decode student notifications response: %v", err)
 	}
-	if len(notifs) == 0 {
-		t.Errorf("Expected reminder to be delivered to student 24 notification list")
-	} else if !strings.Contains(notifs[0].Text, "Python Workshop") {
-		t.Errorf("Expected reminder notification to contain activity name, got: %s", notifs[0].Text)
+
+	if len(notifBody.Notifications) != 1 {
+		t.Fatalf("Expected exactly 1 reminder notification for student 24, got %d", len(notifBody.Notifications))
+	}
+	reminder := notifBody.Notifications[0]
+	if !strings.Contains(reminder.Message, "Python Workshop") {
+		t.Errorf("Expected reminder notification to contain activity name, got: %s", reminder.Message)
+	}
+	if reminder.Type != models.NotificationTypeActivity {
+		t.Errorf("Expected reminder notification type %q, got %q", models.NotificationTypeActivity, reminder.Type)
+	}
+	if reminder.IsRead {
+		t.Errorf("Expected a freshly sent reminder to be unread")
+	}
+	if notifBody.UnreadCount != 1 {
+		t.Errorf("Expected unread_count 1 for the new reminder, got %d", notifBody.UnreadCount)
+	}
+	// The internal note-trail marker must not leak into what the student reads.
+	if strings.Contains(reminder.Message, "[ALERT REMINDER]") {
+		t.Errorf("Expected the internal marker to be stripped from the student message, got: %s", reminder.Message)
+	}
+
+	// The cross-batch reminder rejected earlier must not have notified anyone.
+	tokenStudent25, _ := utils.GenerateAccessToken(student25.RollNo, student25.EmailID, "student")
+	reqNotif25 := httptest.NewRequest("GET", "/api/student/notifications", nil)
+	reqNotif25.Header.Set("Authorization", "Bearer "+tokenStudent25)
+
+	respNotif25, err := app.Test(reqNotif25)
+	if err != nil {
+		t.Fatalf("Failed to execute student 25 notifications request: %v", err)
+	}
+	var notifBody25 struct {
+		Notifications []models.Notification `json:"notifications"`
+	}
+	if err := json.NewDecoder(respNotif25.Body).Decode(&notifBody25); err != nil {
+		t.Fatalf("Failed to decode student 25 notifications response: %v", err)
+	}
+	if len(notifBody25.Notifications) != 0 {
+		t.Errorf("Expected the rejected cross-batch reminder to notify nobody, got %d notification(s)", len(notifBody25.Notifications))
 	}
 }
 

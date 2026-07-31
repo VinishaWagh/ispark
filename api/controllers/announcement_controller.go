@@ -227,9 +227,27 @@ func refreshAnnouncementStatuses() error {
 		Update("status", "expired").Error; err != nil {
 		return err
 	}
-	return config.DB.Model(&models.Announcement{}).
+
+	// A scheduled announcement reaching its publish date is a publication like
+	// any other, so it goes live through the publication service rather than a
+	// bare status update — otherwise students are never told it exists.
+	var due []models.Announcement
+	if err := config.DB.
 		Where("status = ? AND publish_date <= ? AND expiry_date >= ?", "scheduled", today, today).
-		Update("status", "active").Error
+		Find(&due).Error; err != nil {
+		return err
+	}
+
+	// Each announcement activates in its own transaction: one that cannot be
+	// delivered stays scheduled and is retried by the next refresh, without
+	// holding back the ones that can.
+	var firstErr error
+	for _, announcement := range due {
+		if _, err := activateAnnouncement(announcement, nil); err != nil && firstErr == nil {
+			firstErr = err
+		}
+	}
+	return firstErr
 }
 
 func GetAnnouncements(c *fiber.Ctx) error {
@@ -312,6 +330,28 @@ func CreateAnnouncement(c *fiber.Ctx) error {
 	if err := applyAnnouncementInput(&announcement, input, true); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
+
+	// Creating an announcement directly as "active" publishes it, so the insert
+	// and the student fan-out share one transaction: the row cannot exist as
+	// active without its notifications.
+	if announcement.Status == "active" {
+		created := announcement
+		if err := config.DB.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Create(&created).Error; err != nil {
+				return err
+			}
+			activated, err := activateAnnouncementTx(tx, created, nil)
+			if err != nil {
+				return err
+			}
+			created = activated
+			return nil
+		}); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": announcementPublishFailedMessage})
+		}
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"announcement": announcementToResponse(created)})
+	}
+
 	if err := config.DB.Create(&announcement).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create announcement"})
 	}
@@ -337,6 +377,29 @@ func UpdateAnnouncement(c *fiber.Ctx) error {
 	if err := applyAnnouncementInput(&announcement, input, false); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
+
+	// An update that sets the status to "active" publishes the announcement, so
+	// it takes the publication path in the same transaction as the save. An
+	// already-delivered announcement re-saved as active is left alone by the
+	// NotifiedAt claim, so editing a live announcement never re-notifies.
+	if announcement.Status == "active" {
+		updated := announcement
+		if err := config.DB.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Save(&updated).Error; err != nil {
+				return err
+			}
+			activated, err := activateAnnouncementTx(tx, updated, nil)
+			if err != nil {
+				return err
+			}
+			updated = activated
+			return nil
+		}); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": announcementPublishFailedMessage})
+		}
+		return c.JSON(fiber.Map{"announcement": announcementToResponse(updated)})
+	}
+
 	if err := config.DB.Save(&announcement).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update announcement"})
 	}
@@ -370,10 +433,15 @@ func PublishAnnouncement(c *fiber.Ctx) error {
 	if announcement.ExpiryDate.Before(today) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot publish an expired announcement"})
 	}
-	announcement.PublishDate = today
-	announcement.Status = "active"
-	if err := config.DB.Save(&announcement).Error; err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to publish announcement"})
+
+	// Publishing brings the announcement live and delivers it to students'
+	// notification bells atomically. A delivery failure rolls the whole
+	// transition back and is reported as an error, so the announcement is never
+	// left active-but-undelivered and this request can simply be retried.
+	published, err := activateAnnouncement(announcement, &today)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": announcementPublishFailedMessage})
 	}
-	return c.JSON(fiber.Map{"announcement": announcementToResponse(announcement)})
+
+	return c.JSON(fiber.Map{"announcement": announcementToResponse(published)})
 }
