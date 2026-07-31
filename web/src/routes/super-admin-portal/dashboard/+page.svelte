@@ -109,7 +109,7 @@
 		},
 		{
 			name: 'User Management',
-			icon: 'M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0 1 10.089 21c-2.316 0-4.445-.69-6.22-1.879v-.003a4.125 4.125 0 0 1 7.533-2.493M15 19.128v-.003c0-1.112-.285-2.16-.786-3.07M14.214 16.058A9.396 9.396 0 0 0 10.089 15c-1.47 0-2.854.34-4.082.945M14.214 16.058a9.386 9.386 0 0 1 0 3.07M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'
+			icon: 'M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'
 		},
 		{
 			name: 'Activity Management',
@@ -129,7 +129,7 @@
 		},
 		{
 			name: 'System Settings',
-			icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'
+			icon: 'M12 15.5A3.5 3.5 0 1012 8a3.5 3.5 0 000 7.5zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1.08-1.5 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6h.01A1.65 1.65 0 0010 3.09V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9v.01A1.65 1.65 0 0020.91 10H21a2 2 0 110 4h-.09A1.65 1.65 0 0019.4 15z'
 		}
 	];
 
@@ -1321,11 +1321,13 @@
 						viewBox="0 0 24 24"
 						stroke="currentColor"
 						stroke-width="2"
-						class="w-5 h-5"
+						class="w-5 h-5 shrink-0"
 					>
 						<path stroke-linecap="round" stroke-linejoin="round" d={item.icon} />
 					</svg>
-					{item.name}
+					<span class="text-left">
+						{item.name}
+					</span>
 				</button>
 			{/each}
 		</nav>
@@ -1423,12 +1425,15 @@
 							viewBox="0 0 24 24"
 							stroke="currentColor"
 							stroke-width="2"
-							class="w-5 h-5"
+							class="w-5 h-5 shrink-0"
 						>
 							<path stroke-linecap="round" stroke-linejoin="round" d={item.icon} />
 						</svg>
-						{item.name}
-					</button>
+						<span class="text-left">
+							{item.name}
+							<span> </span></span
+						></button
+					>
 				{/each}
 			</nav>
 
@@ -1618,23 +1623,21 @@
 			{/if}
 
 			{#if currentTab === 'Dashboard'}
-				<!-- Dashboard Statistics Cards Grid (Step 2) -->
+				<!-- Dashboard Statistics Cards Grid -->
 				<section
 					class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
 					aria-label="Super Admin metrics overview"
 				>
 					<!-- Card 1: Total Students -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900"
 								>{stats.total_students}</span
 							>
-							<div
-								class="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 animate-pulse"
-							>
-								<!-- People icon -->
+							<div class="p-2.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-100">
+								<!-- Academic / Student icon -->
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									fill="none"
@@ -1646,29 +1649,29 @@
 									<path
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0 1 10.089 21c-2.316 0-4.445-.69-6.22-1.879v-.003a4.125 4.125 0 0 1 7.533-2.493M15 19.128v-.003c0-1.112-.285-2.16-.786-3.07M14.214 16.058A9.396 9.396 0 0 0 10.089 15c-1.47 0-2.854.34-4.082.945M14.214 16.058a9.386 9.386 0 0 1 0 3.07"
+										d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
 									/>
 								</svg>
 							</div>
 						</div>
 						<div class="mt-4">
-							<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
 								Total Students
 							</h3>
-							<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-								>Active Student Accounts</span
-							>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+								Active student accounts
+							</p>
 						</div>
 					</div>
 
 					<!-- Card 2: Total Admins -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900">{stats.total_admins}</span>
 							<div class="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
-								<!-- Single user admin icon -->
+								<!-- Admin / Users icon -->
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									fill="none"
@@ -1680,31 +1683,32 @@
 									<path
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+										d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
 									/>
+									A
 								</svg>
 							</div>
 						</div>
 						<div class="mt-4">
-							<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-								Total Admins
-							</h3>
-							<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-								>Active Administrator Accounts</span
-							>
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Total Admins</h3>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+								Active admin accounts
+							</p>
 						</div>
 					</div>
 
 					<!-- Card 3: Total Activities -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900"
 								>{stats.total_activities}</span
 							>
-							<div class="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
-								<!-- Graph icon -->
+							<div
+								class="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100"
+							>
+								<!-- Graph / Activity icon -->
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									fill="none"
@@ -1716,30 +1720,30 @@
 									<path
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"
+										d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 015.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"
 									/>
 								</svg>
 							</div>
 						</div>
 						<div class="mt-4">
-							<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
 								Total Activities
 							</h3>
-							<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-								>Total Campus Activities</span
-							>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+								Total campus activities
+							</p>
 						</div>
 					</div>
 
 					<!-- Card 4: Active Tracks -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900">{stats.active_tracks}</span
 							>
-							<div class="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
-								<!-- Stack icon -->
+							<div class="p-2.5 rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
+								<!-- Layers / Track icon -->
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									fill="none"
@@ -1757,16 +1761,15 @@
 							</div>
 						</div>
 						<div class="mt-4">
-							<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
 								Active Tracks
 							</h3>
-							<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-								>Categorized Activity Tracks</span
-							>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+								Categorized activity
+							</p>
 						</div>
 					</div>
 				</section>
-
 				<!-- Middle Grid section (Step 3 & 4) -->
 				<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 					<!-- User Management Overview (lg:col-span-2) -->
@@ -1850,7 +1853,7 @@
 							<!-- Button 1: Create User (Solid Red) -->
 							<button
 								onclick={() => (isCreateUserModalOpen = true)}
-								class="p-5 bg-[#C23A3A] hover:bg-[#B03131] text-white rounded-[20px] shadow-xs flex flex-col items-center justify-center text-center space-y-2.5 h-[160px] w-full transition duration-200 focus:outline-none"
+								class="p-5 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white rounded-[20px] shadow-xs flex flex-col items-center justify-center text-center space-y-2.5 h-[160px] w-full transition duration-200 focus:outline-none"
 							>
 								<!-- User plus icon -->
 								<svg
@@ -2062,7 +2065,7 @@
 				>
 					<!-- Card 1: Total Students -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900">{totalStudentsCount}</span>
@@ -2085,18 +2088,18 @@
 							</div>
 						</div>
 						<div class="mt-4">
-							<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
 								Total Students
 							</h3>
-							<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-								>Active Student Accounts</span
-							>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+								Active Student Accounts
+							</p>
 						</div>
 					</div>
 
 					<!-- Card 2: Total Admins -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900">{totalAdminsCount}</span>
@@ -2113,24 +2116,22 @@
 									<path
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0110.089 21c-2.316 0-4.445-.69-6.22-1.879v-.003a4.125 4.125 0 017.533-2.493M15 19.128v-.003c0-1.112-.285-2.16-.786-3.07M14.214 16.058A9.396 9.396 0 0010.089 15c-1.47 0-2.854.34-4.082.945M14.214 16.058a9.386 9.386 0 010 3.07"
+										d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
 									/>
 								</svg>
 							</div>
 						</div>
 						<div class="mt-4">
-							<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-								Total Admins
-							</h3>
-							<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-								>Active Administrator Accounts</span
-							>
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Total Admins</h3>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+								Active Admin Accounts
+							</p>
 						</div>
 					</div>
 
 					<!-- Card 3: Pending Verification -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900">{pendingUsersCount}</span>
@@ -2153,18 +2154,18 @@
 							</div>
 						</div>
 						<div class="mt-4">
-							<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
 								Pending Accounts
 							</h3>
-							<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-								>Awaiting Verification</span
-							>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+								Awaiting Verification
+							</p>
 						</div>
 					</div>
 
 					<!-- Card 4: Active Users -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900">{activeUsersCount}</span>
@@ -2187,12 +2188,10 @@
 							</div>
 						</div>
 						<div class="mt-4">
-							<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-								Active Users
-							</h3>
-							<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-								>{activeRate}% active rate</span
-							>
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Active Users</h3>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+								{activeRate}% active rate
+							</p>
 						</div>
 					</div>
 				</section>
@@ -2232,7 +2231,7 @@
 										onclick={() => (userFilter = roleType)}
 										class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all
 											{userFilter === roleType
-											? 'bg-[#C23A3A] text-white shadow-xs'
+											? 'bg-[#881B1B] text-white shadow-xs'
 											: 'bg-slate-50 text-slate-500 hover:bg-slate-100'}"
 									>
 										{roleType === 'All'
@@ -2460,7 +2459,7 @@
 								<button
 									type="button"
 									onclick={() => (isCreateUserModalOpen = true)}
-									class="p-4 bg-[#C23A3A] hover:bg-[#B03131] text-white rounded-2xl shadow-xs flex flex-col items-center justify-center text-center space-y-2 h-[100px] w-full transition duration-200 focus:outline-none"
+									class="p-4 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white rounded-2xl shadow-xs flex flex-col items-center justify-center text-center space-y-2 h-[100px] w-full transition duration-200 focus:outline-none"
 								>
 									<!-- User plus icon -->
 									<svg
@@ -2493,7 +2492,7 @@
 										viewBox="0 0 24 24"
 										stroke-width="2"
 										stroke="currentColor"
-										class="w-5 h-5 text-[#C23A3A]"
+										class="w-5 h-5 text-[#881B1B]"
 									>
 										<path
 											stroke-linecap="round"
@@ -2519,7 +2518,7 @@
 										viewBox="0 0 24 24"
 										stroke-width="2"
 										stroke="currentColor"
-										class="w-5 h-5 text-[#C23A3A]"
+										class="w-5 h-5 text-[#881B1B]"
 									>
 										<path
 											stroke-linecap="round"
@@ -2545,7 +2544,7 @@
 										viewBox="0 0 24 24"
 										stroke-width="2"
 										stroke="currentColor"
-										class="w-5 h-5 text-[#C23A3A]"
+										class="w-5 h-5 text-[#881B1B]"
 									>
 										<path
 											stroke-linecap="round"
@@ -2607,129 +2606,143 @@
 				>
 					<!-- Total Reports -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
-						<div>
+						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900"
 								>{reportSummary.total_reports}</span
 							>
-							<h3 class="text-xs font-bold text-slate-800 tracking-wide mt-1.5">Total Reports</h3>
-							<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+							<div class="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="w-5 h-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+									/>
+								</svg>
+							</div>
+						</div>
+						<div class="mt-4">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
+								Total Reports
+							</h3>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
 								Generated all-time
 							</p>
-						</div>
-						<div class="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-5 h-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
-								/>
-							</svg>
 						</div>
 					</div>
 
 					<!-- Scheduled -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
-						<div>
+						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900"
 								>{reportSummary.scheduled_reports}</span
 							>
-							<h3 class="text-xs font-bold text-slate-800 tracking-wide mt-1.5">
+							<div class="p-2.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="w-5 h-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+									/>
+								</svg>
+							</div>
+						</div>
+						<div class="mt-4">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
 								Scheduled Reports
 							</h3>
-							<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
 								Auto-generated
 							</p>
-						</div>
-						<div class="p-2.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-5 h-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-								/>
-							</svg>
 						</div>
 					</div>
 
 					<!-- Downloads -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
-						<div>
+						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900"
 								>{reportSummary.monthly_downloads}</span
 							>
-							<h3 class="text-xs font-bold text-slate-800 tracking-wide mt-1.5">Downloads</h3>
-							<p class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mt-0.5">
+							<div
+								class="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="w-5 h-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+									/>
+								</svg>
+							</div>
+						</div>
+						<div class="mt-4">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Downloads</h3>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
 								This month
 							</p>
-						</div>
-						<div class="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-5 h-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
-								/>
-							</svg>
 						</div>
 					</div>
 
 					<!-- Last Generated -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
-						<div class="min-w-0">
+						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900"
 								>{recentReports.length ? recentReports[0].date : '—'}</span
 							>
-							<h3 class="text-xs font-bold text-slate-800 tracking-wide mt-1.5">Last Generated</h3>
+							<div class="p-2.5 rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="w-5 h-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+									/>
+								</svg>
+							</div>
+						</div>
+						<div class="mt-4 min-w-0">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
+								Last Generated
+							</h3>
 							<p
-								class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate"
+								class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider truncate"
 							>
 								{recentReports.length ? recentReports[0].name : 'No reports yet'}
 							</p>
-						</div>
-						<div class="p-2.5 rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-5 h-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-								/>
-							</svg>
 						</div>
 					</div>
 				</section>
@@ -2852,7 +2865,7 @@
 								<button
 									type="button"
 									onclick={runReportGeneration}
-									class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#C23A3A] hover:bg-[#B03131] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none"
+									class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none"
 								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -3001,7 +3014,7 @@
 													<button
 														type="button"
 														onclick={() => downloadReport(report)}
-														class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-white bg-[#C23A3A] hover:bg-[#B03131] rounded-lg transition-colors"
+														class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-white bg-[#881B1B] hover:bg-[#881B1B]/90 rounded-lg transition-colors"
 													>
 														<svg
 															xmlns="http://www.w3.org/2000/svg"
@@ -3076,7 +3089,7 @@
 								<button
 									type="button"
 									onclick={scheduleNewReport}
-									class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#C23A3A] hover:bg-[#B03131] text-white font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors focus:outline-none"
+									class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors focus:outline-none"
 								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -3310,7 +3323,7 @@
 												{#each deptScores as d}
 													<div class="flex-1 flex items-end justify-center h-full">
 														<div
-															class="w-full max-w-[26px] rounded-t bg-gradient-to-t from-[#881B1B] to-[#C23A3A] transition-all"
+															class="w-full max-w-[26px] rounded-t bg-gradient-to-t from-[#881B1B] to-[#6b1414] transition-all"
 															style="height: {Math.min(d.score, 100)}%"
 															title="{d.dept}: {d.score} avg credits"
 														></div>
@@ -3337,7 +3350,7 @@
 									>
 									<div class="flex items-center gap-3">
 										<span class="flex items-center gap-1 text-[9px] font-bold text-slate-500">
-											<span class="w-2.5 h-0.5 rounded-full bg-[#C23A3A]"></span>Activities
+											<span class="w-2.5 h-0.5 rounded-full bg-[#881B1B]"></span>Activities
 										</span>
 										<span class="flex items-center gap-1 text-[9px] font-bold text-slate-500">
 											<span class="w-2.5 h-0.5 rounded-full bg-emerald-500"></span>Certificates
@@ -3367,7 +3380,7 @@
 												<polyline
 													points={activitiesPoints}
 													fill="none"
-													stroke="#C23A3A"
+													stroke="#881B1B"
 													stroke-width="1.5"
 													stroke-linecap="round"
 													stroke-linejoin="round"
@@ -3459,121 +3472,137 @@
 				>
 					<!-- Academic Year -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
-						<div>
+						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900">2025–26</span>
-							<h3 class="text-xs font-bold text-slate-800 tracking-wide mt-1.5">Academic Year</h3>
-							<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+							<div class="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="w-5 h-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+									/>
+								</svg>
+							</div>
+						</div>
+						<div class="mt-4">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
+								Academic Year
+							</h3>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
 								Current cycle
 							</p>
-						</div>
-						<div class="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-5 h-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-								/>
-							</svg>
 						</div>
 					</div>
 
 					<!-- Credit Policies -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
-						<div>
+						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900"
 								>{(settingsSections['Credit Policy']?.length ?? 0) + 3}</span
 							>
-							<h3 class="text-xs font-bold text-slate-800 tracking-wide mt-1.5">Credit Policies</h3>
-							<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+							<div class="p-2.5 rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="w-5 h-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0"
+									/>
+								</svg>
+							</div>
+						</div>
+						<div class="mt-4">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
+								Credit Policies
+							</h3>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
 								Rules active
 							</p>
-						</div>
-						<div class="p-2.5 rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-5 h-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0"
-								/>
-							</svg>
 						</div>
 					</div>
 
 					<!-- Required Activities -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
-						<div>
+						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-slate-900">12</span>
-							<h3 class="text-xs font-bold text-slate-800 tracking-wide mt-1.5">
+							<div class="p-2.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-100">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="w-5 h-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+									/>
+								</svg>
+							</div>
+						</div>
+						<div class="mt-4">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
 								Required Activities
 							</h3>
-							<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
 								Configured
 							</p>
-						</div>
-						<div class="p-2.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-100">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-5 h-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-								/>
-							</svg>
 						</div>
 					</div>
 
 					<!-- System Status -->
 					<div
-						class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow"
+						class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 					>
-						<div>
+						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold font-serif text-emerald-600">Active</span>
-							<h3 class="text-xs font-bold text-slate-800 tracking-wide mt-1.5">System Status</h3>
-							<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+							<div
+								class="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="w-5 h-5"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"
+									/>
+								</svg>
+							</div>
+						</div>
+						<div class="mt-4">
+							<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
+								System Status
+							</h3>
+							<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
 								All systems normal
 							</p>
-						</div>
-						<div class="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-5 h-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"
-								/>
-							</svg>
 						</div>
 					</div>
 				</section>
@@ -3599,7 +3628,7 @@
 							<button
 								type="button"
 								onclick={handleSaveAllSettings}
-								class="px-4 py-2 bg-[#C23A3A] hover:bg-[#B03131] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none shrink-0"
+								class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none shrink-0"
 							>
 								Save Changes
 							</button>
@@ -3749,7 +3778,7 @@
 							<button
 								type="button"
 								onclick={() => triggerToast('Opening global settings editor...')}
-								class="w-full mt-3 py-2.5 bg-[#C23A3A] hover:bg-[#B03131] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none"
+								class="w-full mt-3 py-2.5 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none"
 							>
 								Edit Global Settings
 							</button>

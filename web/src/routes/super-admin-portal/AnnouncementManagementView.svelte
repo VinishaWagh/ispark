@@ -361,7 +361,7 @@
 	>
 		<!-- Total Announcements -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{totalAnnouncementsCount}</span>
@@ -384,16 +384,18 @@
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
 					Total Announcements
 				</h3>
-				<span class="text-[11px] font-bold text-slate-400 mt-1 block">All-time records</span>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					All-time records
+				</p>
 			</div>
 		</div>
 
 		<!-- Active -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{activeAnnouncementsCount}</span>
@@ -416,14 +418,16 @@
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active</h3>
-				<span class="text-[11px] font-bold text-slate-400 mt-1 block">Currently visible</span>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Active</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					Currently visible
+				</p>
 			</div>
 		</div>
 
 		<!-- Scheduled -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900"
@@ -453,14 +457,16 @@
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Scheduled</h3>
-				<span class="text-[11px] font-bold text-slate-400 mt-1 block">Queued for publishing</span>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Scheduled</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					Queued for publishing
+				</p>
 			</div>
 		</div>
 
 		<!-- Expired -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{expiredAnnouncementsCount}</span
@@ -484,8 +490,10 @@
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Expired</h3>
-				<span class="text-[11px] font-bold text-slate-400 mt-1 block">Past expiry date</span>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Expired</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					Past expiry date
+				</p>
 			</div>
 		</div>
 	</section>
@@ -508,7 +516,7 @@
 			<button
 				type="button"
 				onclick={openCreateAnnouncement}
-				class="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2 bg-[#C23A3A] hover:bg-[#B03131] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none shrink-0"
+				class="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none shrink-0"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -535,7 +543,7 @@
 						onclick={() => (announcementFilter = filterOption as FilterKey)}
 						class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all
 							{announcementFilter === filterOption
-							? 'bg-[#C23A3A] text-white shadow-xs'
+							? 'bg-[#881B1B] text-white shadow-xs'
 							: 'bg-slate-50 text-slate-500 hover:bg-slate-100'}"
 					>
 						{filterOption}
@@ -999,7 +1007,7 @@
 				<button
 					type="submit"
 					disabled={isSaving}
-					class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
+					class="px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
 				>
 					{isSaving ? 'Saving...' : formMode === 'create' ? 'Save Announcement' : 'Save Changes'}
 				</button>
@@ -1144,7 +1152,7 @@
 						isViewAnnouncementModalOpen = false;
 						if (viewAnnouncement) openEditAnnouncement(viewAnnouncement);
 					}}
-					class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
+					class="px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
 				>
 					Edit Announcement
 				</button>

@@ -422,7 +422,7 @@
 	>
 		<!-- Total Activities -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{totalActivitiesCount}</span>
@@ -438,22 +438,22 @@
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+							d="M3.75 6A2.25 2.25 0 016 3.75h2.25c.597 0 1.142.234 1.543.615l1.8 1.8A2.25 2.25 0 0013.183 6.75H18A2.25 2.25 0 0120.25 9v9A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6z"
 						/>
 					</svg>
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-					Total Activities
-				</h3>
-				<span class="text-[11px] font-bold text-slate-400 mt-1 block">Total Campus Activities</span>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Total activities</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					Total campus activities
+				</p>
 			</div>
 		</div>
 
 		<!-- Active Activities -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{activeActivitiesCount}</span>
@@ -469,22 +469,22 @@
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"
+							d="M3.75 12h3.75l2.25-6 3.75 12 2.25-6h3.75"
 						/>
 					</svg>
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-					Active Activities
-				</h3>
-				<span class="text-[11px] font-bold text-slate-400 mt-1 block">Currently Active & Open</span>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Active activities</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					Currently active & open
+				</p>
 			</div>
 		</div>
 
 		<!-- Personality Development -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{personalityDevCount}</span>
@@ -500,24 +500,24 @@
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 21.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+							d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
 						/>
 					</svg>
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-					Personality Development
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
+					Personality development
 				</h3>
-				<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-					>{personalityDevCount} registered activities</span
-				>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					{personalityDevCount} registered activities
+				</p>
 			</div>
 		</div>
 
 		<!-- Skill Building -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{skillBuildingCount}</span>
@@ -533,34 +533,34 @@
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
+							d="M12 18v-1.5m0 0a6 6 0 10-6-6c0 2.22 1.21 4.156 3 5.19V16.5a1.5 1.5 0 001.5 1.5h3a1.5 1.5 0 001.5-1.5v-1.01a6.002 6.002 0 003-5.19c0-3.314-2.686-6-6-6zM9.75 21h4.5"
 						/>
 					</svg>
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-					Skill Building
-				</h3>
-				<span class="text-[11px] font-bold text-slate-400 mt-1 block"
-					>{skillBuildingCount} registered activities</span
-				>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Skill building</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					{skillBuildingCount} registered activities
+				</p>
 			</div>
 		</div>
 	</section>
 
 	<!-- ==================== MAIN GRID: OVERVIEW + MANAGE CREDITS ==================== -->
 	<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-		<!-- Activity Management Overview Table (lg:col-span-2) -->
+		<!-- Activity Management Overview Table (lg:col-span-3) -->
 		<div
 			class="lg:col-span-3 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col"
 		>
 			<!-- Header -->
 			<div
-				class="p-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/20 select-none"
+				class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/20 select-none"
 			>
 				<div>
-					<h3 class="text-sm font-bold font-serif text-slate-905">Activity Management Overview</h3>
+					<h3 class="text-base font-bold font-serif text-slate-900">
+						Activity Management Overview
+					</h3>
 					<p class="text-[11px] text-slate-500 font-semibold mt-0.5">
 						{filteredActivities.length} of {activities.length} activities
 					</p>
@@ -568,7 +568,7 @@
 				<button
 					type="button"
 					onclick={openAddActivity}
-					class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#C23A3A] hover:bg-[#B03131] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none shrink-0"
+					class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none shrink-0"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -595,7 +595,7 @@
 							onclick={() => setFilter(tab)}
 							class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all
 								{activeFilter === tab
-								? 'bg-[#C23A3A] text-white shadow-xs'
+								? 'bg-[#881B1B] text-white shadow-xs'
 								: 'bg-slate-50 text-slate-500 hover:bg-slate-100'}"
 						>
 							{tab}
@@ -630,9 +630,9 @@
 				</div>
 			</div>
 
-			<!-- Table -->
+			<!-- Table View -->
 			<div class="overflow-x-auto flex-grow no-scrollbar">
-				<table class="w-full text-left border-collapse">
+				<table class="w-full text-left border-collapse min-w-[600px]">
 					<thead>
 						<tr
 							class="border-b border-slate-150 bg-slate-50/50 text-[10px] font-extrabold text-slate-405 uppercase tracking-wider"
@@ -673,24 +673,8 @@
 										</span>
 									</td>
 									<td class="py-4 px-5 text-slate-500 font-semibold">{activity.type}</td>
-									<td class="py-4 px-5">
-										<span class="inline-flex items-center gap-1 font-bold text-amber-600">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke-width="2"
-												stroke="currentColor"
-												class="w-3.5 h-3.5"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497"
-												/>
-											</svg>
-											{activity.credits}
-										</span>
+									<td class="py-4 px-5 font-bold text-slate-800">
+										{activity.credits}
 									</td>
 									<td class="py-4 px-5">
 										<button
@@ -701,9 +685,7 @@
 											)} hover:opacity-70 transition-opacity"
 										>
 											<span
-												class="w-1.5 h-1.5 rounded-full shrink-0 {statusDotClass(
-													activity.status
-												)} {activity.status === 'Active' ? '' : ''}"
+												class="w-1.5 h-1.5 rounded-full shrink-0 {statusDotClass(activity.status)}"
 											></span>
 											{activity.status}
 										</button>
@@ -802,7 +784,7 @@
 								onclick={() => goToPage(i + 1)}
 								class="w-7 h-7 flex items-center justify-center rounded-lg text-[11px] font-bold transition-colors
 									{currentPage === i + 1
-									? 'bg-[#C23A3A] text-white'
+									? 'bg-[#881B1B] text-white'
 									: 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}"
 							>
 								{i + 1}
@@ -833,7 +815,7 @@
 					</svg>
 				</div>
 				<div>
-					<h3 class="text-sm font-bold font-serif text-slate-905">Manage Credits</h3>
+					<h3 class="text-sm font-bold font-serif text-slate-900">Manage Credits</h3>
 					<p class="text-[10px] font-semibold text-slate-400 mt-0.5">Configure credit values</p>
 				</div>
 			</div>
@@ -845,21 +827,7 @@
 						class="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0"
 					>
 						<span class="text-xs font-semibold text-slate-600">{type}</span>
-						<span class="inline-flex items-center gap-1 text-xs font-bold text-slate-800">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="w-3.5 h-3.5 text-amber-500"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497"
-								/>
-							</svg>
+						<span class="text-xs font-bold text-slate-800">
 							{creditRules[type]} cr
 						</span>
 					</div>
@@ -869,7 +837,7 @@
 			<button
 				type="button"
 				onclick={openCreditRules}
-				class="w-full mt-2 inline-flex items-center justify-center gap-1.5 py-2.5 bg-[#C23A3A] hover:bg-[#B03131] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none"
+				class="w-full mt-2 inline-flex items-center justify-center gap-1.5 py-2.5 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -1181,7 +1149,7 @@
 				</button>
 				<button
 					type="submit"
-					class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
+					class="px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
 				>
 					{modalMode === 'add' ? 'Publish Activity' : 'Save Changes'}
 				</button>
@@ -1202,13 +1170,14 @@
 		class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
 	>
 		<div
-			class="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans"
+			class="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans max-h-[90vh]"
 		>
+			<!-- Header -->
 			<div class="p-5 border-b border-slate-150 flex items-center justify-between bg-slate-50/30">
 				<div>
-					<h3 class="text-sm font-bold font-serif text-slate-905">Activity Details</h3>
+					<h3 class="text-sm font-bold font-serif text-slate-900">View Activity</h3>
 					<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-						{viewingActivity.id}
+						Activity Details ({viewingActivity.id})
 					</p>
 				</div>
 				<button
@@ -1230,85 +1199,170 @@
 				</button>
 			</div>
 
-			<div class="p-6 space-y-1">
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Activity Name</span>
-					<span class="text-xs font-bold text-slate-900">{viewingActivity.name}</span>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Track</span>
-					<span
-						class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full border {trackBadgeClass(
-							viewingActivity.track
-						)}"
-					>
-						{viewingActivity.track}
+			<!-- Body - Scrollable Form Structure -->
+			<div class="p-6 space-y-4 overflow-y-auto flex-grow">
+				<!-- Activity Name -->
+				<div class="flex flex-col gap-1.5">
+					<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+						ACTIVITY NAME
 					</span>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Type</span>
-					<span class="text-xs font-bold text-slate-900">{viewingActivity.type}</span>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Category</span>
-					<span class="text-xs font-bold text-slate-900"
-						>{viewingActivity.category || 'TECHNICAL'}</span
+					<div
+						class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
 					>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Mode</span>
-					<span class="text-xs font-bold text-slate-900">{viewingActivity.mode || 'Offline'}</span>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Registration Deadline</span>
-					<span class="text-xs font-bold text-slate-900"
-						>{viewingActivity.reg_deadline || 'N/A'}</span
-					>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Activity Date</span>
-					<span class="text-xs font-bold text-slate-900"
-						>{viewingActivity.activity_date || 'N/A'}</span
-					>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Venue</span>
-					<span class="text-xs font-bold text-slate-900">{viewingActivity.venue || 'N/A'}</span>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Coordinator</span>
-					<span class="text-xs font-bold text-slate-900"
-						>{viewingActivity.coordinator || 'N/A'}</span
-					>
-				</div>
-				<div class="flex items-center justify-between py-2.5 border-b border-slate-100">
-					<span class="text-xs font-semibold text-slate-500">Credits</span>
-					<span class="text-xs font-bold text-slate-900">{viewingActivity.credits} cr</span>
-				</div>
-				{#if viewingActivity.description}
-					<div class="py-2.5 border-b border-slate-100 flex flex-col gap-1">
-						<span class="text-xs font-semibold text-slate-500">Description</span>
-						<span class="text-xs text-slate-700 leading-relaxed font-sans"
-							>{viewingActivity.description}</span
-						>
+						{viewingActivity.name}
 					</div>
-				{/if}
-				<div class="flex items-center justify-between py-2.5">
-					<span class="text-xs font-semibold text-slate-500">Status</span>
-					<span
-						class="inline-flex items-center gap-1.5 font-bold {statusTextClass(
-							viewingActivity.status
-						)}"
-					>
-						<span class="w-1.5 h-1.5 rounded-full shrink-0 {statusDotClass(viewingActivity.status)}"
-						></span>
-						{viewingActivity.status}
+				</div>
+
+				<!-- Description -->
+				<div class="flex flex-col gap-1.5">
+					<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+						DESCRIPTION
 					</span>
+					<div
+						class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50 min-h-[60px] leading-relaxed"
+					>
+						{viewingActivity.description || 'No description provided.'}
+					</div>
+				</div>
+
+				<!-- Track & Type -->
+				<div class="grid grid-cols-2 gap-4">
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							TRACK
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.track || 'Unassigned'}
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							TYPE
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.type}
+						</div>
+					</div>
+				</div>
+
+				<!-- Category & Mode -->
+				<div class="grid grid-cols-2 gap-4">
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							CATEGORY
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.category || 'TECHNICAL'}
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							MODE
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.mode || 'Offline'}
+						</div>
+					</div>
+				</div>
+
+				<!-- Registration Deadline & Activity Date -->
+				<div class="grid grid-cols-2 gap-4">
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							REGISTRATION DEADLINE
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.reg_deadline
+								? new Date(viewingActivity.reg_deadline).toISOString().split('T')[0]
+								: 'N/A'}
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							ACTIVITY DATE
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.activity_date
+								? new Date(viewingActivity.activity_date).toISOString().split('T')[0]
+								: 'N/A'}
+						</div>
+					</div>
+				</div>
+
+				<!-- Venue & Coordinator -->
+				<div class="grid grid-cols-2 gap-4">
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							VENUE
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.venue || 'N/A'}
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							COORDINATOR
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.coordinator || 'N/A'}
+						</div>
+					</div>
+				</div>
+
+				<!-- Credits & Status -->
+				<div class="grid grid-cols-2 gap-4">
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							CREDITS
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewingActivity.credits} cr
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							STATUS
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold bg-slate-50/50 flex items-center gap-1.5 {statusTextClass(
+								viewingActivity.status
+							)}"
+						>
+							<span
+								class="w-1.5 h-1.5 rounded-full shrink-0 {statusDotClass(viewingActivity.status)}"
+							></span>
+							{viewingActivity.status}
+						</div>
+					</div>
 				</div>
 			</div>
 
+			<!-- Footer -->
 			<div
-				class="p-5 border-t border-slate-150 flex items-center justify-end gap-2.5 bg-slate-50/30"
+				class="p-5 border-t border-slate-150 flex items-center justify-end gap-2.5 bg-slate-50/30 shrink-0"
 			>
 				<button
 					type="button"
@@ -1323,7 +1377,7 @@
 						isViewModalOpen = false;
 						if (viewingActivity) openEditActivity(viewingActivity);
 					}}
-					class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
+					class="px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
 				>
 					Edit Activity
 				</button>
@@ -1401,7 +1455,7 @@
 				</button>
 				<button
 					type="submit"
-					class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
+					class="px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
 				>
 					Save Credit Rules
 				</button>

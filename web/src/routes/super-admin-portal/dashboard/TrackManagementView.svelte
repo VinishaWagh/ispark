@@ -222,13 +222,11 @@
 	}
 
 	function trackStatusClass(status: TrackStatus): string {
-		return status === 'Active'
-			? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-			: 'bg-slate-100 text-slate-500 border-slate-200';
+		return status === 'Active' ? 'text-emerald-600' : 'text-slate-400';
 	}
 
 	function trackStatusDot(status: TrackStatus): string {
-		return status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400';
+		return status === 'Active' ? 'bg-emerald-600' : 'bg-slate-400';
 	}
 </script>
 
@@ -241,12 +239,12 @@
 	>
 		<!-- Total Tracks -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{totalTracksCount}</span>
 				<div class="p-2.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">
-					<!-- Layers icon -->
+					<!-- Layers Icon for Total Tracks -->
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -274,18 +272,21 @@
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Tracks</h3>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Total tracks</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					Total platform tracks
+				</p>
 			</div>
 		</div>
 
 		<!-- Active Tracks -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{activeTracksCount}</span>
 				<div class="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
-					<!-- Trending up icon -->
+					<!-- Trending Up / Pulse Icon -->
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -303,18 +304,21 @@
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Tracks</h3>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Active tracks</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					Currently active tracks
+				</p>
 			</div>
 		</div>
 
 		<!-- Personality Development Activities -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{personalityDevActivities}</span>
 				<div class="p-2.5 rounded-lg bg-purple-50 text-purple-600 border border-purple-100">
-					<!-- Star icon -->
+					<!-- User Development Icon -->
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -326,26 +330,29 @@
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+							d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
 						/>
 					</svg>
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-					Personality Development
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">
+					Personality development
 				</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					{personalityDevActivities} registered activities
+				</p>
 			</div>
 		</div>
 
 		<!-- Skill Building Activities -->
 		<div
-			class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow"
+			class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow duration-200"
 		>
 			<div class="flex items-center justify-between">
 				<span class="text-2xl font-bold font-serif text-slate-900">{skillBuildingActivities}</span>
 				<div class="p-2.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-100">
-					<!-- Lightning bolt icon -->
+					<!-- Lightbulb Icon -->
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -357,15 +364,16 @@
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
+							d="M12 18v-1.5m0 0a6 6 0 10-6-6c0 2.22 1.21 4.156 3 5.19V16.5a1.5 1.5 0 001.5 1.5h3a1.5 1.5 0 001.5-1.5v-1.01a6.002 6.002 0 003-5.19c0-3.314-2.686-6-6-6zM9.75 21h4.5"
 						/>
 					</svg>
 				</div>
 			</div>
 			<div class="mt-4">
-				<h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-					Skill Building
-				</h3>
+				<h3 class="text-xs font-bold text-slate-800 tracking-wide font-sans">Skill building</h3>
+				<p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
+					{skillBuildingActivities} registered activities
+				</p>
 			</div>
 		</div>
 	</section>
@@ -374,26 +382,26 @@
 	<section class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
 		<!-- Header -->
 		<div
-			class="p-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/20 select-none"
+			class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/20 select-none"
 		>
 			<div>
-				<h3 class="text-sm font-bold font-serif text-slate-905">Track Management Overview</h3>
+				<h3 class="text-base font-bold font-serif text-slate-900">Track Management Overview</h3>
 				<p class="text-[11px] text-slate-500 font-semibold mt-0.5">
-					All registered tracks on the iSPARC platform
+					{filteredTracks.length} of {tracks.length} tracks
 				</p>
 			</div>
 			<button
 				type="button"
 				onclick={() => (isAddTrackModalOpen = true)}
-				class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#C23A3A] hover:bg-[#B03131] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none shrink-0"
+				class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-colors focus:outline-none shrink-0"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
 					viewBox="0 0 24 24"
-					stroke-width="2"
+					stroke-width="2.5"
 					stroke="currentColor"
-					class="w-4 h-4"
+					class="w-3.5 h-3.5"
 				>
 					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
 				</svg>
@@ -412,10 +420,10 @@
 						onclick={() => (trackFilter = filterOption)}
 						class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all
 							{trackFilter === filterOption
-							? 'bg-[#C23A3A] text-white shadow-xs'
+							? 'bg-[#881B1B] text-white shadow-xs'
 							: 'bg-slate-50 text-slate-500 hover:bg-slate-100'}"
 					>
-						{filterOption === 'All' ? 'All Tracks' : filterOption}
+						{filterOption}
 					</button>
 				{/each}
 			</div>
@@ -424,7 +432,7 @@
 				<input
 					type="text"
 					bind:value={trackSearch}
-					placeholder="Search track name"
+					placeholder="Search track name..."
 					class="pl-4 pr-9 py-2 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-slate-350 focus:bg-white w-full transition-all"
 				/>
 				<span class="absolute right-3 top-2.5 text-slate-400">
@@ -447,8 +455,8 @@
 		</div>
 
 		<!-- Table -->
-		<div class="overflow-x-auto">
-			<table class="w-full text-left border-collapse">
+		<div class="overflow-x-auto no-scrollbar">
+			<table class="w-full text-left border-collapse min-w-[600px]">
 				<thead>
 					<tr
 						class="border-b border-slate-150 bg-slate-50/50 text-[10px] font-extrabold text-slate-405 uppercase tracking-wider"
@@ -457,7 +465,7 @@
 						<th class="py-3.5 px-5">Description</th>
 						<th class="py-3.5 px-5">Total Activities</th>
 						<th class="py-3.5 px-5">Status</th>
-						<th class="py-3.5 px-5">Actions</th>
+						<th class="py-3.5 px-5 text-center">Actions</th>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-slate-100 text-xs font-sans">
@@ -481,16 +489,17 @@
 								</td>
 								<td class="py-4 px-5 align-top">
 									<span
-										class="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full border {trackStatusClass(
+										class="inline-flex items-center gap-1.5 font-bold {trackStatusClass(
 											track.status
 										)}"
 									>
-										<span class="w-1.5 h-1.5 rounded-full {trackStatusDot(track.status)}"></span>
+										<span class="w-1.5 h-1.5 rounded-full shrink-0 {trackStatusDot(track.status)}"
+										></span>
 										{track.status}
 									</span>
 								</td>
 								<td class="py-4 px-5 align-top">
-									<div class="flex items-center gap-3">
+									<div class="flex items-center justify-center gap-3 text-slate-400">
 										<button
 											type="button"
 											onclick={() => openViewTrack(track)}
@@ -689,7 +698,7 @@
 				</button>
 				<button
 					type="submit"
-					class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
+					class="px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
 				>
 					Add Track
 				</button>
@@ -795,7 +804,7 @@
 				</button>
 				<button
 					type="submit"
-					class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
+					class="px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
 				>
 					Save Changes
 				</button>
@@ -816,13 +825,13 @@
 		class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
 	>
 		<div
-			class="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans"
+			class="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans max-h-[90vh]"
 		>
 			<div class="p-5 border-b border-slate-150 flex items-center justify-between bg-slate-50/30">
 				<div>
-					<h3 class="text-sm font-bold font-serif text-slate-900">{viewTrack.name}</h3>
+					<h3 class="text-sm font-bold font-serif text-slate-900">View Track</h3>
 					<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-						Track Details
+						Track Details ({viewTrack.id})
 					</p>
 				</div>
 				<button
@@ -844,34 +853,63 @@
 				</button>
 			</div>
 
-			<div class="p-6 space-y-4 text-xs font-sans">
-				<div class="flex flex-col gap-1">
-					<span class="text-[10px] font-extrabold text-slate-650 tracking-wider">DESCRIPTION</span>
-					<p class="text-slate-700 font-semibold leading-relaxed">{viewTrack.description}</p>
-				</div>
-				<div class="grid grid-cols-2 gap-4 pt-2">
-					<div class="flex flex-col gap-1">
-						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider"
-							>TOTAL ACTIVITIES</span
-						>
-						<span class="text-sm font-bold text-slate-900">{viewTrack.totalActivities}</span>
+			<div class="p-6 space-y-4 overflow-y-auto flex-grow">
+				<!-- Track Name -->
+				<div class="flex flex-col gap-1.5">
+					<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+						TRACK NAME
+					</span>
+					<div
+						class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+					>
+						{viewTrack.name}
 					</div>
-					<div class="flex flex-col gap-1">
-						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider">STATUS</span>
-						<span
-							class="inline-flex items-center gap-1.5 px-2 py-0.5 w-fit text-[10px] font-bold uppercase rounded-full border {trackStatusClass(
+				</div>
+
+				<!-- Description -->
+				<div class="flex flex-col gap-1.5">
+					<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+						DESCRIPTION
+					</span>
+					<div
+						class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50 min-h-[60px] leading-relaxed"
+					>
+						{viewTrack.description || 'No description provided.'}
+					</div>
+				</div>
+
+				<!-- Total Activities & Status -->
+				<div class="grid grid-cols-2 gap-4">
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							TOTAL ACTIVITIES
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-800 bg-slate-50/50"
+						>
+							{viewTrack.totalActivities}
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-1.5">
+						<span class="text-[10px] font-extrabold text-slate-650 tracking-wider uppercase">
+							STATUS
+						</span>
+						<div
+							class="px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold bg-slate-50/50 flex items-center gap-1.5 {trackStatusClass(
 								viewTrack.status
 							)}"
 						>
-							<span class="w-1.5 h-1.5 rounded-full {trackStatusDot(viewTrack.status)}"></span>
+							<span class="w-1.5 h-1.5 rounded-full shrink-0 {trackStatusDot(viewTrack.status)}"
+							></span>
 							{viewTrack.status}
-						</span>
+						</div>
 					</div>
 				</div>
 			</div>
 
 			<div
-				class="p-5 border-t border-slate-150 flex items-center justify-end gap-2.5 bg-slate-50/30"
+				class="p-5 border-t border-slate-150 flex items-center justify-end gap-2.5 bg-slate-50/30 shrink-0"
 			>
 				<button
 					type="button"
@@ -886,7 +924,7 @@
 						isViewTrackModalOpen = false;
 						if (viewTrack) openEditTrack(viewTrack);
 					}}
-					class="px-4 py-2 bg-[#881B1B] hover:bg-[#881B1B]/90 text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
+					class="px-4 py-2 bg-[#881B1B] hover:bg-[#721616] text-white font-bold text-xs uppercase rounded-lg transition-colors focus:outline-none"
 				>
 					Edit Track
 				</button>
@@ -894,3 +932,15 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.no-scrollbar {
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* IE / Edge legacy */
+	}
+	.no-scrollbar::-webkit-scrollbar {
+		display: none; /* Chrome, Safari, Opera */
+		width: 0;
+		height: 0;
+	}
+</style>

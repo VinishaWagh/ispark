@@ -1,54 +1,94 @@
 <script lang="ts">
 	import DevCredentials from '$lib/DevCredentials.svelte';
 	import { goto } from '$app/navigation';
+	import { onDestroy } from 'svelte';
+	import { fade, slide } from 'svelte/transition';
+
 	import { API_BASE_URL } from '$lib/config';
 
-	// Local interactive states using Svelte 5 runes
+	const formId = 'superadmin-login';
+
+	// Reactive state using Svelte 5 runes
 	let superAdminId = $state('');
 	let password = $state('');
-	let rememberMe = $state(false);
 	let showPassword = $state(false);
+
+	// Simulated states
 	let submitting = $state(false);
+	let loginSuccess = $state(false);
 	let errorMsg = $state('');
 
-	const isFormValid = $derived(superAdminId.trim() !== '' && password !== '');
+	// Rate Limiting & Lockout states
+	let failedAttempts = $state(0);
+	let lockoutTimeLeft = $state(0);
+	let lockoutInterval: ReturnType<typeof setInterval> | undefined;
 
-	// Feature list items for left column
-	const features = [
-		{
-			title: 'Complete Platform Access',
-			description: 'Manage all modules, users, admins and configurations.',
-			icon: 'cog'
-		},
-		{
-			title: 'Role & Permission Control',
-			description: 'Assign and monitor access levels across the system.',
-			icon: 'users'
-		},
-		{
-			title: 'System Analytics',
-			description: 'Track activities, reports and institutional insights.',
-			icon: 'chart'
-		},
-		{
-			title: 'Security Monitoring',
-			description: 'Review logs and maintain platform security.',
-			icon: 'shield'
-		}
-	];
+	function startLockout() {
+		lockoutTimeLeft = 60;
+		errorMsg = 'Too many failed login attempts. Please try again in 60 seconds.';
 
-	// Footer navigation links
+		if (lockoutInterval) clearInterval(lockoutInterval);
+
+		lockoutInterval = setInterval(() => {
+			lockoutTimeLeft -= 1;
+			if (lockoutTimeLeft <= 0) {
+				clearInterval(lockoutInterval);
+				failedAttempts = 0;
+				errorMsg = '';
+			} else {
+				errorMsg = `Too many failed login attempts. Please try again in ${lockoutTimeLeft} seconds.`;
+			}
+		}, 1000);
+	}
+
+	onDestroy(() => {
+		if (lockoutInterval) clearInterval(lockoutInterval);
+	});
+
+	// Form validity derived state
+	let isFormValid = $derived(superAdminId.trim() !== '' && password.trim() !== '');
+
 	const footerLines = [
-		'Skill, Personality Advancement & Refinement Cell',
 		'International Institute of Professional Studies (IIPS)',
 		'Devi Ahilya Vishwavidyalaya (DAVV), Indore'
 	];
 
 	const currentYear = new Date().getFullYear();
 
-	async function handleLogin(event: SubmitEvent) {
+	const featureItems = [
+		{
+			title: 'Complete Platform Access',
+			description: 'Manage all modules, users, admins and configurations.',
+			iconPath: 'cog'
+		},
+		{
+			title: 'Role & Permission Control',
+			description: 'Assign and monitor access levels across the system.',
+			iconPath: 'users'
+		},
+		{
+			title: 'System Analytics',
+			description: 'Track activities, reports and institutional insights.',
+			iconPath: 'chart'
+		},
+		{
+			title: 'Security Monitoring',
+			description: 'Review logs and maintain platform security.',
+			iconPath: 'shield'
+		}
+	];
+
+	function routeAfterLogin() {
+		loginSuccess = true;
+		setTimeout(() => {
+			goto('/super-admin-portal/dashboard');
+		}, 1000);
+	}
+
+	// Submit Handler
+	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
-		if (!isFormValid || submitting) return;
+		if (!isFormValid || lockoutTimeLeft > 0) return;
 
 		submitting = true;
 		errorMsg = '';
@@ -57,7 +97,7 @@
 			const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ admin_id: superAdminId, password })
+				body: JSON.stringify({ admin_id: superAdminId, password: password })
 			});
 
 			const data = await response.json();
@@ -66,16 +106,23 @@
 				throw new Error(data.error || 'Invalid Super Admin ID or Password.');
 			}
 
-			// The login endpoint is shared with the admin portal, so an ordinary
-			// admin must not be let through to the super admin portal.
 			if (data.admin?.role !== 'superadmin') {
 				throw new Error('This account does not have super admin access.');
 			}
 
 			localStorage.setItem('superadmin_token', data.access_token);
-			await goto('/super-admin-portal/dashboard');
+			failedAttempts = 0;
+			routeAfterLogin();
 		} catch (err) {
-			errorMsg = err instanceof Error ? err.message : 'Login failed. Please try again.';
+			failedAttempts += 1;
+			if (failedAttempts >= 5) {
+				startLockout();
+			} else {
+				errorMsg =
+					err instanceof Error
+						? err.message
+						: `Invalid Super Admin ID or Password. (Attempt ${failedAttempts} of 5)`;
+			}
 		} finally {
 			submitting = false;
 		}
@@ -83,258 +130,97 @@
 </script>
 
 <svelte:head>
-	<title>Super Admin Control Portal | iSPARC</title>
+	<title>Super Admin Control Portal | iSPARC IIPS DAVV</title>
 	<meta
 		name="description"
 		content="Secure access for iSPARC super administrators to manage the complete platform, user roles, system settings, and institutional operations."
 	/>
+	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
-<div class="min-h-screen bg-[#F7F6F3] flex flex-col w-full font-sans">
+<div class="min-h-screen bg-bg-main flex flex-col items-center w-full">
 	<!-- ==================== HEADER ==================== -->
-	<header class="w-full bg-white border-b border-slate-200/80 sticky top-0 z-50 shadow-xs">
+	<header class="w-full bg-white border-b border-border-base sticky top-0 z-50 shadow-xs">
 		<div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
 			<!-- Brand Logo -->
 			<a
 				href="/"
-				class="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-lg transition-all duration-200"
+				class="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inst-navy focus-visible:ring-offset-2 rounded-lg transition-all duration-200"
 			>
 				<div class="flex flex-col justify-center">
 					<div
 						class="flex items-baseline text-2xl font-bold tracking-tight text-slate-900 leading-none"
 					>
-						<span>i</span><span class="text-[#881B1B]">SPARC</span>
+						<span>i</span><span class="text-acad-red font-extrabold">SPARC</span>
 					</div>
 				</div>
 			</a>
 
-			<!-- Back To Home Button -->
+			<!-- Back to Home Link -->
 			<a
 				href="/"
-				class="inline-flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 rounded-md px-2 py-1 text-slate-650 hover:text-[#881B1B] transition-all duration-200"
+				aria-label="Back To Home"
+				class="inline-flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-inst-navy focus-visible:ring-offset-2 rounded-md px-3 py-1.5 text-slate-650 hover:text-inst-navy transition-all duration-200"
 			>
-				<!-- Home Icon -->
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
 					fill="none"
-					stroke="currentColor"
+					viewBox="0 0 24 24"
 					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
+					stroke="currentColor"
 					class="w-4 h-4"
 					aria-hidden="true"
 				>
-					<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-					<polyline points="9 22 9 12 15 12 15 22" />
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+					/>
 				</svg>
 				<span class="text-[13px] font-semibold uppercase tracking-wider"> Back To Home </span>
 			</a>
 		</div>
 	</header>
 
-	<!-- ==================== MAIN CONTENT ==================== -->
-	<main class="flex-grow w-full flex items-center justify-center py-12 px-6 sm:px-8 lg:px-12">
-		<div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-			<!-- Left Column: Guidelines & Information -->
-			<section class="lg:col-span-6 flex flex-col gap-6 animate-fade-in">
+	<!-- ==================== MAIN ==================== -->
+	<main class="flex-grow w-full flex justify-center items-start">
+		<section
+			class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 px-4 sm:px-6 lg:px-8 py-12 items-start font-sans"
+		>
+			<!-- Left Column: Super Admin Portal Description & System Privileges -->
+			<aside class="lg:col-span-5 flex flex-col gap-6 animate-fade-in">
 				<div class="flex flex-col gap-4">
-					<h1
-						class="text-4xl sm:text-5xl font-extrabold text-[#881B1B] font-serif leading-tight tracking-tight"
-					>
-						Super Admin<br />
-						<span class="text-slate-900">Control Portal</span>
-					</h1>
-					<p class="text-slate-500 text-[14px] leading-relaxed max-w-lg">
+					<div>
+						<h1
+							class="text-4xl font-extrabold text-acad-red font-serif leading-tight tracking-tight"
+						>
+							Super Admin<br />
+							<span class="text-inst-navy">Control Portal</span>
+						</h1>
+					</div>
+
+					<p class="text-slate-500 text-sm leading-relaxed">
 						Secure access for iSPARC super administrators to manage the complete platform, user
 						roles, system settings, and institutional operations.
 					</p>
 				</div>
 
-				<!-- Feature list -->
-				<div class="flex flex-col gap-6 mt-4">
-					{#each features as feature}
-						<div class="flex items-start gap-4 group">
-							<div class="shrink-0 text-[#881B1B] mt-0.5">
-								{#if feature.icon === 'cog'}
-									<!-- Cog SVG -->
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2.2"
-										stroke="currentColor"
-										class="w-5 h-5"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.991l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28z"
-										/>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-										/>
-									</svg>
-								{:else if feature.icon === 'users'}
-									<!-- Users SVG -->
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2.2"
-										stroke="currentColor"
-										class="w-5 h-5"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0118 18.72zm-12 0a6.062 6.062 0 0112 0v.318c0 .243-.016.481-.049.714A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.72zm4.5-9a3 3 0 11-6 0 3 3 0 016 0zM18 9.75a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
-										/>
-									</svg>
-								{:else if feature.icon === 'chart'}
-									<!-- Chart SVG -->
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2.2"
-										stroke="currentColor"
-										class="w-5 h-5"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
-										/>
-									</svg>
-								{:else if feature.icon === 'shield'}
-									<!-- Shield SVG -->
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2.2"
-										stroke="currentColor"
-										class="w-5 h-5"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-										/>
-									</svg>
-								{/if}
-							</div>
-							<div>
-								<h3
-									class="text-[15px] font-bold text-slate-800 leading-snug tracking-wide group-hover:text-[#881B1B] transition-colors duration-200"
-								>
-									{feature.title}
-								</h3>
-								<p class="text-xs text-slate-500 mt-1 leading-relaxed">
-									{feature.description}
-								</p>
-							</div>
-						</div>
-					{/each}
-				</div>
-			</section>
-
-			<!-- Right Column: Login Card -->
-			<section class="lg:col-span-6 flex justify-center lg:justify-end">
+				<!-- System Privileges Details -->
 				<div
-					class="w-full max-w-md bg-white rounded-2xl border border-slate-100 shadow-xl p-8 sm:p-10 transition-all duration-350 hover:shadow-2xl animate-fade-up"
+					class="flex flex-col gap-4 bg-white p-6 rounded-xl border border-border-base shadow-xs"
 				>
-					<!-- Card Header -->
-					<div class="pb-6 border-b border-slate-100">
-						<h2 class="text-2xl font-bold text-[#0b1535] font-serif leading-tight">
-							Welcome Super Admin
-						</h2>
-						<p class="text-slate-500 text-xs mt-1.5 leading-relaxed">
-							Login to access the iSPARC master administration panel
-						</p>
-					</div>
+					<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+						System Privileges
+					</h3>
 
-					<!-- Form -->
-					<form onsubmit={handleLogin} class="pt-6 flex flex-col gap-5">
-						<!-- Super Admin ID Field -->
-						<div class="flex flex-col gap-1.5">
-							<label
-								for="super-admin-id"
-								class="text-[11px] font-bold text-slate-700 tracking-wider"
-							>
-								SUPER ADMIN ID
-							</label>
-							<div class="relative flex items-center">
-								<span class="absolute left-3.5 pointer-events-none text-slate-400">
-									<!-- Lock SVG -->
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2.2"
-										stroke="currentColor"
-										class="w-4 h-4"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-										/>
-									</svg>
-								</span>
-								<input
-									id="super-admin-id"
-									type="text"
-									bind:value={superAdminId}
-									placeholder="Enter your super admin ID"
-									class="w-full pl-11 pr-3.5 py-2.5 bg-white rounded-lg border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#881B1B] focus:ring-2 focus:ring-[#881B1B]/10 transition-all duration-200"
-									required
-								/>
-							</div>
-						</div>
-
-						<!-- Password Field -->
-						<div class="flex flex-col gap-1.5">
-							<label for="password" class="text-[11px] font-bold text-slate-700 tracking-wider">
-								PASSWORD
-							</label>
-							<div class="relative flex items-center">
-								<span class="absolute left-3.5 pointer-events-none text-slate-400">
-									<!-- Lock SVG -->
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2.2"
-										stroke="currentColor"
-										class="w-4 h-4"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-										/>
-									</svg>
-								</span>
-								<input
-									id="password"
-									type={showPassword ? 'text' : 'password'}
-									bind:value={password}
-									placeholder="Enter your password"
-									class="w-full pl-11 pr-12 py-2.5 bg-white rounded-lg border border-slate-200 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#881B1B] focus:ring-2 focus:ring-[#881B1B]/10 transition-all duration-200"
-									required
-								/>
-								<button
-									type="button"
-									onclick={() => (showPassword = !showPassword)}
-									class="absolute right-3.5 text-slate-400 hover:text-slate-650 transition-colors focus:outline-none"
-									aria-label={showPassword ? 'Hide password' : 'Show password'}
+					<div class="flex flex-col gap-5">
+						{#each featureItems as item}
+							<div class="flex items-start gap-4">
+								<div
+									class="flex w-9 h-9 items-center justify-center shrink-0 bg-slate-50 rounded-lg border border-border-base text-inst-navy"
 								>
-									{#if showPassword}
-										<!-- Eye-off SVG -->
+									{#if item.iconPath === 'cog'}
+										<!-- Cog SVG -->
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											fill="none"
@@ -346,23 +232,7 @@
 											<path
 												stroke-linecap="round"
 												stroke-linejoin="round"
-												d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M21 21l-2.109-2.109m0 0A5.002 5.002 0 0021 12c-1.283-4.338-5.3-7.5-10.05-7.5-2.012 0-3.886.565-5.482 1.549M12 9a3 3 0 100 6M12 9a3 3 0 00-3 3M12 15a3 3 0 01-3-3"
-											/>
-										</svg>
-									{:else}
-										<!-- Eye SVG -->
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke-width="2"
-											stroke="currentColor"
-											class="w-5 h-5"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.43 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+												d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
 											/>
 											<path
 												stroke-linecap="round"
@@ -370,44 +240,233 @@
 												d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
 											/>
 										</svg>
+									{:else if item.iconPath === 'users'}
+										<!-- Users SVG -->
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="2"
+											stroke="currentColor"
+											class="w-5 h-5"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0118 18.72zm-12 0a6.062 6.062 0 0112 0v.318c0 .243-.016.481-.049.714A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.72zm4.5-9a3 3 0 11-6 0 3 3 0 016 0zM18 9.75a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+											/>
+										</svg>
+									{:else if item.iconPath === 'chart'}
+										<!-- Chart SVG -->
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="2"
+											stroke="currentColor"
+											class="w-5 h-5"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
+											/>
+										</svg>
+									{:else}
+										<!-- Shield SVG -->
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											stroke-width="2"
+											stroke="currentColor"
+											class="w-5 h-5"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+											/>
+										</svg>
+									{/if}
+								</div>
+
+								<div class="flex flex-col gap-0.5">
+									<h4 class="text-sm font-bold text-slate-800">{item.title}</h4>
+									<p class="text-xs text-slate-500 leading-normal">{item.description}</p>
+								</div>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</aside>
+
+			<!-- Right Column: Super Admin Login Card -->
+			<div
+				class="lg:col-span-7 bg-white rounded-2xl border border-border-base shadow-sm overflow-hidden animate-fade-up"
+			>
+				{#if loginSuccess}
+					<!-- Success View -->
+					<div
+						class="p-8 sm:p-12 text-center flex flex-col items-center gap-6"
+						in:fade={{ duration: 400 }}
+					>
+						<div
+							class="w-16 h-16 bg-emerald-100 text-emerald-800 flex items-center justify-center rounded-full border-2 border-emerald-250 animate-bounce"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="3"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								class="w-8 h-8"
+							>
+								<polyline points="20 6 9 17 4 12" />
+							</svg>
+						</div>
+
+						<div>
+							<h2 class="text-2xl font-bold text-slate-900 font-serif">
+								Authenticated Successfully!
+							</h2>
+							<p class="text-slate-500 text-sm mt-2 max-w-md mx-auto">
+								Welcome, Super Admin <span class="font-semibold text-slate-800">{superAdminId}</span
+								>. You have logged into the iSPARC Master Administration Panel. Redirecting to super
+								admin console...
+							</p>
+						</div>
+
+						<div class="flex gap-3 w-full max-w-sm pt-4">
+							<a
+								href="/super-admin-portal/dashboard"
+								class="flex-1 py-3 text-center bg-inst-navy hover:bg-inst-navy/90 text-white font-semibold text-xs tracking-wider uppercase rounded-xl transition duration-200"
+							>
+								Go to Console
+							</a>
+						</div>
+					</div>
+				{:else}
+					<!-- Super Admin Login Form -->
+					<div class="p-6 sm:p-8 border-b border-border-base bg-slate-50/50">
+						<div class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+							SUPER ADMIN LOGIN
+						</div>
+						<h2 class="text-2xl font-bold text-inst-navy font-serif leading-tight mt-1">
+							Welcome Super Admin
+						</h2>
+						<p class="text-slate-500 text-xs mt-1">
+							Login to access the iSPARC Master Administration Panel
+						</p>
+					</div>
+
+					<form onsubmit={handleSubmit} class="p-6 sm:p-8 flex flex-col gap-6">
+						<!-- Super Admin ID Input -->
+						<div class="flex flex-col gap-1.5">
+							<label
+								for="{formId}-super-admin-id"
+								class="text-[11px] font-bold text-slate-700 tracking-wider"
+							>
+								SUPER ADMIN ID
+							</label>
+							<input
+								id="{formId}-super-admin-id"
+								type="text"
+								bind:value={superAdminId}
+								disabled={lockoutTimeLeft > 0}
+								placeholder="Enter your super admin ID"
+								autoComplete="username"
+								class="w-full px-3.5 py-2.5 bg-white rounded-lg border border-border-base text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-inst-navy focus:ring-2 focus:ring-inst-navy/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+								required
+							/>
+						</div>
+
+						<!-- Password Input -->
+						<div class="flex flex-col gap-1.5">
+							<label
+								for="{formId}-password"
+								class="text-[11px] font-bold text-slate-700 tracking-wider"
+							>
+								PASSWORD
+							</label>
+							<div class="relative flex items-center">
+								<input
+									id="{formId}-password"
+									type={showPassword ? 'text' : 'password'}
+									bind:value={password}
+									disabled={lockoutTimeLeft > 0}
+									placeholder="Enter your password"
+									autoComplete="current-password"
+									class="w-full pl-3.5 pr-12 py-2.5 bg-white rounded-lg border border-border-base text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-inst-navy focus:ring-2 focus:ring-inst-navy/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+									required
+								/>
+								<button
+									type="button"
+									onclick={() => (showPassword = !showPassword)}
+									class="absolute right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-650"
+									aria-label={showPassword ? 'Hide password' : 'Show password'}
+								>
+									{#if showPassword}
+										<!-- Eye-off SVG -->
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											class="w-5 h-5"
+										>
+											<line x1="2" y1="2" x2="22" y2="22" /><path
+												d="M17.547 17.547a8.553 8.553 0 0 1-5.547 1.953 8.8 8.8 0 0 1-8.547-5.5 10.87 10.87 0 0 1 1.761-3.239"
+											/><path
+												d="M9.88 4.22a8.8 8.8 0 0 1 1.62-.22 8.82 8.82 0 0 1 8.547 5.5 10.64 10.64 0 0 1-1.341 2.871"
+											/><circle cx="12" cy="12" r="3" />
+										</svg>
+									{:else}
+										<!-- Eye SVG -->
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											class="w-5 h-5"
+										>
+											<path
+												d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"
+											/><circle cx="12" cy="12" r="3" />
+										</svg>
 									{/if}
 								</button>
 							</div>
 						</div>
 
-						<!-- Remember Me / Forgot Password -->
-						<div class="flex items-center justify-between mt-1">
-							<label class="flex items-center gap-2 cursor-pointer select-none">
-								<input
-									type="checkbox"
-									bind:checked={rememberMe}
-									class="w-4 h-4 rounded border-slate-355 text-[#881B1B] focus:ring-[#881B1B] focus:ring-opacity-20 cursor-pointer accent-[#881B1B]"
-								/>
-								<span
-									class="text-xs text-slate-650 font-medium hover:text-slate-800 transition-colors"
-								>
-									Remember Me
-								</span>
-							</label>
-							<a
-								href="#forgot"
-								onclick={(e) => {
-									e.preventDefault();
+						<!-- Forgot Password -->
+						<div class="flex items-center justify-between text-xs pt-1">
+							<div></div>
+
+							<button
+								type="button"
+								onclick={() =>
 									alert(
 										'Please contact the system administrator to retrieve or reset your super admin credentials.'
-									);
-								}}
-								class="text-xs font-semibold text-[#881B1B] hover:underline transition-colors"
+									)}
+								class="font-bold text-acad-red hover:underline transition-colors focus:outline-none"
 							>
 								Forgot Password?
-							</a>
+							</button>
 						</div>
 
-						<!-- Error message -->
 						{#if errorMsg}
 							<div
-								class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-semibold text-red-700"
-								role="alert"
+								class="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg font-semibold animate-fade-in"
+								transition:slide
 							>
 								{errorMsg}
 							</div>
@@ -416,49 +475,43 @@
 						<!-- Submit Button -->
 						<button
 							type="submit"
-							disabled={!isFormValid || submitting}
-							class="w-full py-3 bg-[#0B1535] hover:bg-[#132049] text-white font-bold text-xs tracking-widest uppercase rounded-lg transition-colors duration-200 shadow-sm mt-3 disabled:opacity-50 disabled:cursor-not-allowed"
+							disabled={submitting || !isFormValid || lockoutTimeLeft > 0}
+							class="w-full py-3.5 bg-inst-navy hover:bg-inst-navy/90 text-white font-bold text-sm tracking-widest uppercase rounded-xl transition duration-200 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
 						>
-							{submitting ? 'SIGNING IN…' : 'LOGIN'}
-						</button>
-
-						<!-- Security Notice Box -->
-						<div
-							class="flex items-start gap-3.5 p-4 bg-red-50 border border-red-100 rounded-xl mt-2"
-						>
-							<div class="shrink-0 mt-0.5 text-red-700">
-								<!-- Shield Warning SVG -->
+							{#if submitting}
 								<svg
-									xmlns="http://www.w3.org/2000/svg"
+									class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
 									fill="none"
 									viewBox="0 0 24 24"
-									stroke-width="2"
-									stroke="currentColor"
-									class="w-4 h-4"
 								>
+									<circle
+										class="opacity-25"
+										cx="12"
+										cy="12"
+										r="10"
+										stroke="currentColor"
+										stroke-width="4"
+									></circle>
 									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-									/>
+										class="opacity-75"
+										fill="currentColor"
+										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+									></path>
 								</svg>
-							</div>
-							<div>
-								<h4 class="text-xs font-bold text-red-800 leading-tight">Security Notice</h4>
-								<p class="text-[11px] text-red-700 mt-1 leading-normal font-medium font-sans">
-									Only authorized super administrators can access this portal.
-								</p>
-							</div>
-						</div>
+								LOGGING IN...
+							{:else}
+								LOGIN
+							{/if}
+						</button>
 					</form>
 					<DevCredentials portal="superadmin" />
-				</div>
-			</section>
-		</div>
+				{/if}
+			</div>
+		</section>
 	</main>
 
 	<!-- ==================== FOOTER ==================== -->
-	<footer class="w-full bg-[#0b1535] py-8 border-t border-slate-900 mt-auto">
+	<footer class="w-full bg-inst-navy py-8 border-t border-slate-900 mt-auto">
 		<div class="max-w-6xl mx-auto flex flex-col items-center gap-1.5 px-6 text-center">
 			<h2 class="text-base font-bold text-white tracking-wider uppercase font-sans">iSPARC</h2>
 			{#each footerLines as line}
@@ -472,3 +525,32 @@
 		</div>
 	</footer>
 </div>
+
+<style>
+	.animate-fade-in {
+		opacity: 0;
+		transform: translateY(-10px);
+		animation: fadeIn 0.8s ease-out forwards;
+	}
+
+	.animate-fade-up {
+		opacity: 0;
+		transform: translateY(25px);
+		animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+		animation-delay: 0.15s;
+	}
+
+	@keyframes fadeIn {
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes fadeUp {
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+</style>
