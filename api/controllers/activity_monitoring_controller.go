@@ -671,10 +671,24 @@ func SendActivityMonitoringReminder(c *fiber.Ctx) error {
 		AdminID:       admin.AdminID,
 		AuthorName:    admin.Name,
 		Role:          admin.Role,
-		Text:          "[ALERT REMINDER] " + msg,
+		Text:          models.AdminNoteReminderPrefix + msg,
 	}
 
-	if err := config.DB.Create(&note).Error; err != nil {
+	// The admin note is the staff-side audit trail; the notification is what the
+	// student actually sees in their bell. A reminder that reaches only the note
+	// trail has not reached the student at all, so the two are written in one
+	// transaction: if the notification cannot be stored the note is rolled back
+	// too, the endpoint reports failure instead of claiming the reminder was
+	// sent, and the admin can retry it.
+	//
+	// The notification carries the bare message: the "[ALERT REMINDER]" prefix
+	// is an internal marker for the note trail, not something to show a student.
+	if err := config.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&note).Error; err != nil {
+			return err
+		}
+		return createNotificationTx(tx, student.RollNo, models.NotificationTitleActivityReminder, msg, models.NotificationTypeActivity)
+	}); err != nil {
 		return errJSON(c, fiber.StatusInternalServerError, "Failed to send reminder alert")
 	}
 

@@ -43,7 +43,14 @@ func SetupRoutes(app *fiber.App) {
 	student.Get("/enrollments", controllers.GetEnrollments)
 	student.Get("/dashboard/stats", controllers.GetDashboardStats)
 	student.Get("/marksheet", controllers.GetMarksheet)
-	student.Get("/notifications", controllers.GetStudentNotifications)
+
+	// Notifications. GetNotifications serves the notifications table; it
+	// supersedes the earlier admin-note-backed GetStudentNotifications, which
+	// used to be registered on this same path and shadowed the handlers below.
+	student.Get("/notifications", controllers.GetNotifications)
+	student.Get("/notifications/unread-count", controllers.GetUnreadNotificationCount)
+	student.Put("/notifications/read-all", controllers.MarkAllNotificationsRead)
+	student.Put("/notifications/:id/read", controllers.MarkNotificationRead)
 
 	// Admin
 	api.Post("/admin/auth/login", controllers.AdminLogin)

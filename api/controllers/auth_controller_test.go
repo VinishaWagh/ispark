@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/glebarez/sqlite"
@@ -21,30 +22,74 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// SetupTestDB initializes an in-memory SQLite database for testing and overrides config.DB
+var testDBOnce sync.Once
+
+// sharedTestDB is the database created once by SetupTestDB. It is retained
+// separately from config.DB so SetupTestDB can restore it on every call: other
+// test files intentionally swap config.DB for their own isolated databases, and
+// without this a test that runs after one of those swaps would otherwise
+// inherit a database missing the tables SetupTestDB migrates.
+var sharedTestDB *gorm.DB
+
+// SetupTestDB initializes an in-memory SQLite database for testing and points
+// config.DB at it. The database is created and migrated once; every call
+// restores config.DB to it and clears the tables for a clean slate.
 func SetupTestDB(t *testing.T) {
 	t.Setenv("TESTING", "true")
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		t.Fatalf("Failed to connect to in-memory SQLite database: %v", err)
-	}
-	config.DB = db
+	testDBOnce.Do(func() {
+		db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Silent),
+		})
+		if err != nil {
+			t.Fatalf("Failed to connect to in-memory SQLite database: %v", err)
+		}
 
-	_ = config.DB.AutoMigrate(
-		&models.Student{},
-		&models.OTP{},
-		&models.Admin{},
-		&models.Activity{},
-		&models.Certificate{},
-		&models.Enrollment{},
-		&models.Track{},
-		&models.BatchOverride{},
-		&models.GeneratedReport{},
-		&models.ScheduledReport{},
-		&models.ReportAuditLog{},
-	)
+		// Auto-migrate all tables used in testing
+		err = db.AutoMigrate(
+			&models.Student{},
+			&models.OTP{},
+			&models.Admin{},
+			&models.Activity{},
+			&models.Certificate{},
+			&models.Enrollment{},
+			&models.Notification{},
+			&models.AdminNote{},
+			&models.Track{},
+			&models.BatchOverride{},
+			&models.GeneratedReport{},
+			&models.ScheduledReport{},
+			&models.ReportAuditLog{},
+		)
+		if err != nil {
+			t.Fatalf("Failed to run database migrations: %v", err)
+		}
+
+		sharedTestDB = db
+	})
+
+	// Restore the shared database in case a previous test swapped config.DB out
+	// for its own isolated instance.
+	config.DB = sharedTestDB
+
+	// Clear all tables to guarantee a clean slate. Unscoped is required because
+	// most models use gorm.DeletedAt: a plain Delete only soft-deletes, leaving
+	// the rows in place so that re-seeding a fixture with the same primary key
+	// (e.g. Admin.AdminID) fails on the unique constraint.
+	if config.DB != nil {
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Student{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.OTP{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Admin{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Activity{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Certificate{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Enrollment{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Notification{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.AdminNote{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.Track{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.BatchOverride{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.GeneratedReport{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.ScheduledReport{})
+		config.DB.Unscoped().Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&models.ReportAuditLog{})
+	}
 }
 
 // Helper to solve the simple math captcha challenge

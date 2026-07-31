@@ -717,7 +717,36 @@ func CreatePlatformActivity(c *fiber.Ctx) error {
 		Status:       status,
 	}
 
-	if err := config.DB.Create(&act).Error; err != nil {
+	// An activity that is open for registration is an event students are
+	// entitled to hear about, so its creation and the fan-out notifying them
+	// are written in one transaction: if the notifications cannot be stored the
+	// activity is not created either and the request can simply be retried,
+	// rather than leaving a live activity nobody was told about.
+	//
+	// An activity created as Closed is not yet open to register for, so it
+	// notifies nobody; students are told when it is opened, not when it is
+	// drafted.
+	if err := config.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&act).Error; err != nil {
+			return err
+		}
+		if act.Status != "Open" {
+			return nil
+		}
+
+		var rollNos []string
+		if err := tx.Model(&models.Student{}).Pluck("roll_no", &rollNos).Error; err != nil {
+			return err
+		}
+
+		message := fmt.Sprintf("A new activity %q is now open for registration.", act.Name)
+		if !act.RegDeadline.IsZero() {
+			message = fmt.Sprintf("A new activity %q is now open for registration. Register by %s.",
+				act.Name, act.RegDeadline.Format("2006-01-02"))
+		}
+
+		return createNotificationsForStudentsTx(tx, rollNos, models.NotificationTitleNewActivity, message, models.NotificationTypeActivity)
+	}); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create activity"})
 	}
 

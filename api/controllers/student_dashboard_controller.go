@@ -15,6 +15,7 @@ import (
 	"github.com/iips-oss/ispark/api/config"
 	"github.com/iips-oss/ispark/api/models"
 	"github.com/iips-oss/ispark/api/utils"
+	"gorm.io/gorm"
 )
 
 const certificateUploadDir = "./uploads/certificates"
@@ -42,7 +43,14 @@ type StudentNotificationResponse struct {
 	Unread    bool      `json:"unread"`
 }
 
-// GetStudentNotifications handles GET /api/student/notifications
+// Deprecated: GetStudentNotifications reads the admin-note trail and is no
+// longer routed. GET /api/student/notifications is served by GetNotifications,
+// which reads the notifications table the portal's bell renders.
+//
+// Do not register this on that path again: it was previously registered ahead
+// of GetNotifications and shadowed it, so events that wrote a real notification
+// were invisible to students while the endpoint still returned 200. Tests must
+// assert against the routed handler for the same reason.
 func GetStudentNotifications(c *fiber.Ctx) error {
 	rollNo, ok := c.Locals("roll_no").(string)
 	if !ok || rollNo == "" {
@@ -616,9 +624,30 @@ func EnrollActivity(c *fiber.Ctx) error {
 		Status:        "Enrolled",
 	}
 
-	if err := config.DB.Create(&enrollment).Error; err != nil {
+	// The enrollment and the student's notification are written in one
+	// transaction. A student is entitled to be told that their enrolment was
+	// registered, so an enrolment whose notification cannot be delivered must
+	// not be recorded either: the rollback leaves the student unenrolled, the
+	// endpoint reports failure rather than success, and the same request can be
+	// retried once notification storage recovers.
+	//
+	// Without the rollback the enrolment would commit and the notification
+	// would be lost for good, because the retry hits the already-enrolled
+	// conflict above and never reaches the notification write again.
+	if err := config.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&enrollment).Error; err != nil {
+			return err
+		}
+		return createNotificationTx(
+			tx,
+			rollNo,
+			"Activity Enrollment",
+			fmt.Sprintf("You have successfully enrolled in %q.", activity.Name),
+			models.NotificationTypeEnrollment,
+		)
+	}); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to enroll in activity",
+			"error": "Failed to enroll in activity and notify you, please retry",
 		})
 	}
 

@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"strings"
 
 	"github.com/iips-oss/ispark/api/models"
 )
@@ -20,6 +21,57 @@ func RunMigrations() {
 		// must be visible in the logs so it can be investigated.
 		log.Printf("Migration warning: normalising student courses failed: %v", err)
 	}
+	if err := backfillReminderNotifications(); err != nil {
+		log.Printf("Migration warning: backfilling reminder notifications failed: %v", err)
+	}
+}
+
+// backfillReminderNotifications lifts activity-monitoring reminders that were
+// recorded only as admin notes into the notifications table.
+//
+// Reminders used to be stored as an AdminNote and surfaced by a student
+// endpoint that read the note trail. That endpoint now reads the notifications
+// table, so without this backfill every reminder sent before the change would
+// silently disappear from the student's bell.
+//
+// It is idempotent: a reminder that already has its matching notification is
+// skipped, so this is a no-op from the second boot onwards. The note's original
+// timestamp is carried over so backfilled reminders keep their place in the
+// newest-first ordering instead of all surfacing as if they arrived today.
+func backfillReminderNotifications() error {
+	var notes []models.AdminNote
+	if err := DB.Where("text LIKE ?", models.AdminNoteReminderPrefix+"%").Find(&notes).Error; err != nil {
+		return err
+	}
+
+	for _, note := range notes {
+		message := strings.TrimPrefix(note.Text, models.AdminNoteReminderPrefix)
+
+		var existing int64
+		if err := DB.Model(&models.Notification{}).
+			Where("student_roll_no = ? AND title = ? AND message = ?",
+				note.StudentRollNo, models.NotificationTitleActivityReminder, message).
+			Count(&existing).Error; err != nil {
+			return err
+		}
+		if existing > 0 {
+			continue
+		}
+
+		notification := models.Notification{
+			StudentRollNo: note.StudentRollNo,
+			Title:         models.NotificationTitleActivityReminder,
+			Message:       message,
+			Type:          models.NotificationTypeActivity,
+			CreatedAt:     note.CreatedAt,
+			UpdatedAt:     note.CreatedAt,
+		}
+		if err := DB.Create(&notification).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // normalizeStudentCourses rewrites any legacy course name to its canonical
