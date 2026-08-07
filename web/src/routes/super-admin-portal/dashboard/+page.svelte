@@ -141,27 +141,15 @@
 	let isNotificationsOpen = $state(false);
 	let searchQuery = $state('');
 
-	// Mock Notifications for Super Admin
-	const notifications = [
-		{
-			id: 1,
-			text: 'System health warning: Background DB sync delayed by 3m.',
-			time: '15 mins ago',
-			unread: true
-		},
-		{
-			id: 2,
-			text: 'Security Alert: Failed SSH attempt from 192.168.1.104.',
-			time: '1 hour ago',
-			unread: true
-		},
-		{
-			id: 3,
-			text: 'Daily audit backup successfully uploaded to S3.',
-			time: '6 hours ago',
-			unread: false
-		}
-	];
+	// Notifications state
+	interface NotificationItem {
+		id: number;
+		text: string;
+		time: string;
+		unread: boolean;
+	}
+
+	let notifications = $state<NotificationItem[]>([]);
 
 	// Users come from the API. recentUsers is just the newest slice of the same
 	// registry, so the two can never drift apart.
@@ -1556,7 +1544,9 @@
 							d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
 						/>
 					</svg>
-					<span class="absolute top-2 right-2.5 w-2 h-2 bg-[#881B1B] rounded-full"></span>
+					{#if notifications.some((n) => n.unread)}
+						<span class="absolute top-2 right-2.5 w-2 h-2 bg-[#881B1B] rounded-full"></span>
+					{/if}
 				</button>
 
 				{#if isNotificationsOpen}
@@ -1581,6 +1571,10 @@
 										<p class="text-xs text-slate-700 font-semibold">{notice.text}</p>
 										<span class="text-[10px] text-slate-405 block mt-1">{notice.time}</span>
 									</div>
+								</div>
+							{:else}
+								<div class="px-4 py-6 text-center text-xs text-slate-400 font-medium">
+									No new notifications
 								</div>
 							{/each}
 						</div>

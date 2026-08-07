@@ -103,7 +103,5 @@ Thumbs.db
 
 # Local uploads
 /api/uploads/
-# Generated report files (runtime artifacts written under uploads/reports at
-# request time and by the controller tests; never source). Matched at any depth
-# so both api/uploads/reports and api/controllers/uploads/reports are ignored.
+**/uploads/
 **/uploads/reports/
