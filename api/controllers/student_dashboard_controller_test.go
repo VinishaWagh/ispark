@@ -77,7 +77,9 @@ func TestStudentDashboardFlow(t *testing.T) {
 		}
 
 		var notes []controllers.StudentNotificationResponse
-		json.NewDecoder(resp.Body).Decode(&notes)
+		if err := json.NewDecoder(resp.Body).Decode(&notes); err != nil {
+			t.Fatalf("Failed to decode notification response: %v", err)
+		}
 		if len(notes) == 0 || notes[0].Text != "Complete activity submission" {
 			t.Errorf("Unexpected notification response: %v", notes)
 		}
@@ -98,7 +100,7 @@ func TestStudentDashboardFlow(t *testing.T) {
 		// Missing required fields
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
-		writer.Close()
+		_ = writer.Close()
 
 		req := httptest.NewRequest("POST", "/api/student/certificates", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -124,9 +126,14 @@ func TestStudentDashboardFlow(t *testing.T) {
 
 		// Create dummy PNG content (PNG magic header: \x89PNG\r\n\x1a\n)
 		pngHeader := []byte{0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'}
-		part, _ := writer.CreateFormFile("certificate_file", "cert.png")
-		part.Write(pngHeader)
-		writer.Close()
+		part, err := writer.CreateFormFile("certificate_file", "cert.png")
+		if err != nil {
+			t.Fatalf("Failed to create form file: %v", err)
+		}
+		if _, err := part.Write(pngHeader); err != nil {
+			t.Fatalf("Failed to write form file: %v", err)
+		}
+		_ = writer.Close()
 
 		req := httptest.NewRequest("POST", "/api/student/certificates", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
