@@ -33,14 +33,14 @@ func TestStudentDashboardFlow(t *testing.T) {
 
 	// Seed test student
 	student := models.Student{
-		RollNo:        studentRoll,
-		Name:          "Test Student",
-		CourseName:    models.CourseMCA5Yr,
-		Semester:      2,
-		EmailID:       "student@test.com",
-		EnrollmentNo:  "EN202401",
-		IsVerified:    true,
-		Status:        "Active",
+		RollNo:       studentRoll,
+		Name:         "Test Student",
+		CourseName:   models.CourseMCA5Yr,
+		Semester:     2,
+		EmailID:      "student@test.com",
+		EnrollmentNo: "EN202401",
+		IsVerified:   true,
+		Status:       "Active",
 	}
 	if err := config.DB.Create(&student).Error; err != nil {
 		t.Fatalf("Failed to seed student: %v", err)
